@@ -375,6 +375,7 @@ public class RocketAnimations : MonoBehaviour
         // Clean up projectile when sequence completes
         pathSequence.OnComplete(() =>
         {
+            // wait for 0.1 seconds before cleaning up
             CleanupProjectile(projectileObj, trailEffect, smokeEffect);
 
             // invoke completion callback
