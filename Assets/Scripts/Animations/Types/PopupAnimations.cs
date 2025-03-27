@@ -581,8 +581,8 @@ public static class PopupAnimations
         if (particleManager != null)
         {
             // play both particle types on the particle container instead of UI container
-            particleManager.PlayEffect("StarConfetti", Vector3.zero, 1000.0f, particleTarget);
-            particleManager.PlayEffect("AddStarConfetti", Vector3.zero, 1000.0f, particleTarget);
+            particleManager.PlayEffect("StarConfetti", Vector3.zero, 1000.0f);
+            particleManager.PlayEffect("AddStarConfetti", Vector3.zero, 1000.0f);
 
             if (IsDebugEnabled()) Debug.Log($"[PopupAnimations] Added celebration particle effects to {particleTarget.name}");
         }
