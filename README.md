@@ -23,3 +23,31 @@ For a comprehensive overview of the implementation process, project structure, a
 4. Open the project
 
 5. When the project loads, all dependencies should be resolved automatically with Unity's built-in renderer
+
+## Developer Settings
+
+### Setting Level in Editor
+
+You can manually set the current level from the Unity Editor:
+
+1. Open the Hierarchy panel
+2. Find and select the **GameController** object
+3. In the Inspector panel, you can adjust the "Debug Level To Set" value
+4. Right-click on the GameController component
+5. Select **Set Debug Level** from the context menu
+6. The level will be set to the specified value
+
+![Setting Level in Editor](screenshots/set_debug_level.png)
+
+### Animation Settings
+
+Animation behavior can be customized through the AnimationManager object:
+
+1. In the Hierarchy panel, find and select the **AnimationManager** object
+2. In the Inspector panel, you'll find several animation settings:
+   - **Debug Mode**: Toggle for detailed animation logging
+   - **Global Animation Settings**: Overall animation speed and toggle
+   - **Animation Type Toggles**: Enable/disable specific animation types
+   - **Specific Animation Settings**: Duration and intensity for various animations
+
+These settings allow for fine-tuning the visual experience or disabling animations entirely for testing purposes.
