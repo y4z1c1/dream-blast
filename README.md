@@ -1,8 +1,13 @@
-# Dream Games - Match-3 Puzzle Game
+# Dream Games - Blast Game
 
 This repository contains my implementation of the Dream Games Software Engineering Study, a level-based mobile puzzle game built in Unity with C#. The game features match-3 mechanics with special rockets, various obstacle types, and 10 unique levels.
 
-![Game Screenshot](screenshots/gameplay.png)
+<p align="center">
+
+<img width="234" alt="image-12" src="https://github.com/user-attachments/assets/84a86658-911a-45cb-9558-d4db0776db61" />
+<img width="275" alt="image-13" src="https://github.com/user-attachments/assets/409a7154-7885-498e-a1d4-cfd030dff9ac" />
+</p>
+
 
 ## Development Documentation
 
@@ -37,7 +42,7 @@ You can manually set the current level from the Unity Editor:
 5. Select **Set Debug Level** from the context menu
 6. The level will be set to the specified value
 
-![Setting Level in Editor](screenshots/set_debug_level.png)
+![image-14](https://github.com/user-attachments/assets/dfa0ea7c-55af-4c16-a668-f4b272a33db4)
 
 ### Animation Settings
 
