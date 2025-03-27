@@ -406,36 +406,61 @@ public class Rocket : GridItem
     public virtual bool CheckForRocketCombination()
     {
         Vector2Int pos = GetGridPosition();
-        List<Rocket> adjacentRockets = new List<Rocket>();
+        List<Rocket> connectedRockets = new List<Rocket>();
+        HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
+        Queue<Vector2Int> queue = new Queue<Vector2Int>();
 
-        // check all four directions
+        // add starting position to queue
+        queue.Enqueue(pos);
+        visited.Add(pos);
+
+        // directions to check: right, left, up, down
         Vector2Int[] directions = new Vector2Int[]
         {
-            new Vector2Int(1, 0),   // right
-            new Vector2Int(-1, 0),  // left
-            new Vector2Int(0, 1),   // up
-            new Vector2Int(0, -1)   // down
+            new Vector2Int(1, 0),
+            new Vector2Int(-1, 0),
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1)
         };
 
-        foreach (Vector2Int dir in directions)
+        // bfs to find all connected rockets
+        while (queue.Count > 0)
         {
-            Vector2Int checkPos = pos + dir;
-            GridCell cell = gridManager.GetCell(checkPos.x, checkPos.y);
+            Vector2Int current = queue.Dequeue();
 
-            if (cell != null && !cell.IsEmpty())
+            // check all four directions
+            foreach (Vector2Int dir in directions)
             {
-                GridItem item = cell.GetItem();
-                if (item is Rocket rocket)
+                Vector2Int checkPos = current + dir;
+
+                // skip if already visited
+                if (visited.Contains(checkPos))
+                    continue;
+
+                GridCell cell = gridManager.GetCell(checkPos.x, checkPos.y);
+
+                if (cell != null && !cell.IsEmpty())
                 {
-                    adjacentRockets.Add(rocket);
+                    GridItem item = cell.GetItem();
+                    if (item is Rocket rocket)
+                    {
+                        // found a rocket, add to connected group
+                        connectedRockets.Add(rocket);
+
+                        // mark as visited
+                        visited.Add(checkPos);
+
+                        // add to queue to check its neighbors
+                        queue.Enqueue(checkPos);
+                    }
                 }
             }
         }
 
-        // if we found adjacent rockets, create a combination
-        if (adjacentRockets.Count > 0)
+        // if we found connected rockets, create a combination
+        if (connectedRockets.Count > 0)
         {
-            TriggerRocketCombination(adjacentRockets);
+            TriggerRocketCombination(connectedRockets);
             return true;
         }
 
