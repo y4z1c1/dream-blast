@@ -58,23 +58,23 @@ public class AnimationManager : MonoBehaviour
     // rocket particle settings
     [Header("Rocket Particle Settings")]
     [Tooltip("Emission rate multiplier for RocketStar particle effect")]
-    [Range(0.1f, 3.0f)]
+    [Range(0.02f, 3.0f)]
     [SerializeField] private float rocketStarEmissionMultiplier = 1.0f;
 
     [Tooltip("Emission rate multiplier for RocketSmoke particle effect")]
-    [Range(0.1f, 3.0f)]
+    [Range(0.02f, 3.0f)]
     [SerializeField] private float rocketSmokeEmissionMultiplier = 1.0f;
 
     [Tooltip("Size multiplier for RocketStar particles")]
-    [Range(0.5f, 2.0f)]
+    [Range(0.1f, 2.0f)]
     [SerializeField] private float rocketStarSizeMultiplier = 1.0f;
 
     [Tooltip("Size multiplier for RocketSmoke particles")]
-    [Range(0.5f, 2.0f)]
+    [Range(0.1f, 2.0f)]
     [SerializeField] private float rocketSmokeSizeMultiplier = 1.0f;
 
     [Tooltip("Burst count multiplier for particle effects")]
-    [Range(0.5f, 2.0f)]
+    [Range(0.1f, 2.0f)]
     [SerializeField] private float particleBurstMultiplier = 1.0f;
 
     // obstacle animation settings

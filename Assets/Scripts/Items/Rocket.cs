@@ -322,8 +322,8 @@ public class Rocket : GridItem
                 // increment active explosion counter for the chain reaction
                 activeExplosions++;
 
-                // trigger explosion on the rocket
-                rocket.Explode();
+                // trigger explosion after short delay
+                StartCoroutine(TriggerExplosionWithDelay(rocket, 0.1f));
             }
             else if (item is Obstacle)
             {
@@ -332,6 +332,12 @@ public class Rocket : GridItem
                 obstacle.TakeDamageFromRocket();
             }
         }
+    }
+
+    private IEnumerator TriggerExplosionWithDelay(Rocket rocket, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        rocket.Explode();
     }
 
     // mark an explosion path as complete and check if all explosions are done
