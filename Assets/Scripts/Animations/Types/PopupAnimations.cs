@@ -536,7 +536,7 @@ public static class PopupAnimations
 
         // store original scale
         Vector3 originalScale = button.transform.localScale;
-        Vector3 pressedScale = originalScale * 0.9f;
+        Vector3 pressedScale = originalScale * 0.8f;
         Vector3 releasedScale = originalScale * 1.05f;
 
         // get animation settings from animationmanager

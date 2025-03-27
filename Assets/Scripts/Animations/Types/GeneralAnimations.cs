@@ -651,4 +651,248 @@ public static class GeneralAnimations
             }
         }
     }
+
+    // animate grid appearance from bottom with smooth easing
+    public static void PlayGridAppearAnimation(Transform gridCellsContainer, Transform gridBackground, float duration = 0.8f, float offset = 20f, System.Action onComplete = null)
+    {
+        if (!InitializeReferences())
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        // validate parameters
+        if (gridCellsContainer == null)
+        {
+            if (IsDebugEnabled()) Debug.LogWarning("[GeneralAnimations] Grid cells container is null for appearance animation");
+            onComplete?.Invoke();
+            return;
+        }
+
+        // apply animation speed multiplier
+        float speedMultiplier = animManager.GetAnimationSpeed();
+        float adjustedDuration = duration / speedMultiplier;
+
+        if (IsDebugEnabled()) Debug.Log("[GeneralAnimations] Starting grid appearance animation");
+
+        // store target positions
+        Vector3 cellsTargetPosition = gridCellsContainer.position;
+        Vector3 cellsStartPosition = cellsTargetPosition + new Vector3(0f, -offset, 0f);
+
+        // set initial positions
+        gridCellsContainer.position = cellsStartPosition;
+        gridCellsContainer.gameObject.SetActive(true);
+
+        // create animation sequence for cells
+        Sequence cellsSequence = DOTween.Sequence();
+
+        // animate cells position with easing
+        cellsSequence.Append(
+            gridCellsContainer.DOMove(cellsTargetPosition, adjustedDuration)
+            .SetEase(Ease.OutBack, 1.05f) // nice bouncy easing
+        );
+
+        // handle grid background animation if provided
+        Sequence bgSequence = null;
+        if (gridBackground != null)
+        {
+            Vector3 bgTargetPosition = gridBackground.position;
+            Vector3 bgStartPosition = bgTargetPosition + new Vector3(0f, -offset, 0f);
+
+            // set initial position
+            gridBackground.position = bgStartPosition;
+            gridBackground.gameObject.SetActive(true);
+
+            // create animation sequence for background
+            bgSequence = DOTween.Sequence();
+
+            // animate background position with same easing as cells
+            bgSequence.Append(
+                gridBackground.DOMove(bgTargetPosition, adjustedDuration)
+                .SetEase(Ease.OutBack, 1.05f)
+            );
+        }
+
+        // handle completion
+        cellsSequence.OnComplete(() =>
+        {
+            // set final position
+            gridCellsContainer.position = cellsTargetPosition;
+
+            if (IsDebugEnabled()) Debug.Log("[GeneralAnimations] Grid appearance animation completed");
+
+            // invoke completion callback
+            onComplete?.Invoke();
+        });
+
+        // handle kill case
+        cellsSequence.OnKill(() =>
+        {
+            if (gridCellsContainer != null)
+            {
+                gridCellsContainer.position = cellsTargetPosition;
+            }
+
+            if (gridBackground != null && bgSequence != null)
+            {
+                DOTween.Kill(gridBackground);
+                gridBackground.position = gridBackground.position;
+            }
+
+            onComplete?.Invoke();
+        });
+    }
+
+    // animate header appearing from top with smooth easing
+    public static void PlayHeaderAppearAnimation(Transform headerTransform, float duration = 0.5f, float offset = 5f, System.Action onComplete = null)
+    {
+        if (!InitializeReferences())
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        // validate parameters
+        if (headerTransform == null)
+        {
+            if (IsDebugEnabled()) Debug.LogWarning("[GeneralAnimations] Header transform is null for appearance animation");
+            onComplete?.Invoke();
+            return;
+        }
+
+        // apply animation speed multiplier
+        float speedMultiplier = animManager.GetAnimationSpeed();
+        float adjustedDuration = duration / speedMultiplier;
+
+        if (IsDebugEnabled()) Debug.Log("[GeneralAnimations] Starting header appearance animation");
+
+        // kill any existing animations on the header
+        DOTween.Kill(headerTransform);
+
+        // store target position
+        Vector3 targetPosition = headerTransform.position;
+        Vector3 startPosition = targetPosition + new Vector3(0f, offset, 0f); // offset upward
+
+        // set initial position
+        headerTransform.position = startPosition;
+
+        // create animation sequence
+        Sequence headerSequence = DOTween.Sequence();
+
+        // animate position with easing
+        headerSequence.Append(
+            headerTransform.DOMove(targetPosition, adjustedDuration)
+            .SetEase(Ease.OutQuint) // smooth deceleration
+        );
+
+        // add a slight scale effect for more visual interest
+        Vector3 originalScale = headerTransform.localScale;
+        Vector3 startScale = new Vector3(originalScale.x, originalScale.y * 0.95f, originalScale.z);
+
+        headerTransform.localScale = startScale;
+        headerSequence.Join(
+            headerTransform.DOScale(originalScale, adjustedDuration * 0.8f)
+            .SetEase(Ease.OutBack, 1.5f)
+        );
+
+        // handle completion
+        headerSequence.OnComplete(() =>
+        {
+            // ensure final position and scale
+            headerTransform.position = targetPosition;
+            headerTransform.localScale = originalScale;
+
+            if (IsDebugEnabled()) Debug.Log("[GeneralAnimations] Header appearance animation completed");
+
+            // invoke completion callback
+            onComplete?.Invoke();
+        });
+
+        // handle kill case
+        headerSequence.OnKill(() =>
+        {
+            if (headerTransform != null)
+            {
+                headerTransform.position = targetPosition;
+                headerTransform.localScale = originalScale;
+            }
+
+            onComplete?.Invoke();
+        });
+    }
+
+    // animate level button appearing from bottom with bounce effect
+    public static void PlayLevelButtonAppearAnimation(Transform buttonTransform, float duration = 0.6f, float offset = 8f, System.Action onComplete = null)
+    {
+        if (!InitializeReferences())
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        // validate parameters
+        if (buttonTransform == null)
+        {
+            if (IsDebugEnabled()) Debug.LogWarning("[GeneralAnimations] Button transform is null for appearance animation");
+            onComplete?.Invoke();
+            return;
+        }
+
+        // apply animation speed multiplier
+        float speedMultiplier = animManager.GetAnimationSpeed();
+        float adjustedDuration = duration / speedMultiplier;
+
+        if (IsDebugEnabled()) Debug.Log("[GeneralAnimations] Starting level button appearance animation");
+
+        // kill any existing animations on the button
+        DOTween.Kill(buttonTransform);
+
+        // store target position
+        Vector3 targetPosition = buttonTransform.position;
+        Vector3 startPosition = targetPosition + new Vector3(0f, -offset, 0f); // offset downward
+
+        // set initial position
+        buttonTransform.position = startPosition;
+
+        // ensure button is visible
+        buttonTransform.gameObject.SetActive(true);
+
+        // create animation sequence
+        Sequence buttonSequence = DOTween.Sequence();
+
+        // animate position with strong bounce easing
+        buttonSequence.Append(
+            buttonTransform.DOMove(targetPosition, adjustedDuration)
+            .SetEase(Ease.OutBack, 1.3f) // stronger bounce for button
+        );
+
+        // add a slight scale pulse for attention
+        Vector3 originalScale = buttonTransform.localScale;
+
+
+        // handle completion
+        buttonSequence.OnComplete(() =>
+        {
+            // ensure final position and scale
+            buttonTransform.position = targetPosition;
+            buttonTransform.localScale = originalScale;
+
+            if (IsDebugEnabled()) Debug.Log("[GeneralAnimations] Level button appearance animation completed");
+
+            // invoke completion callback
+            onComplete?.Invoke();
+        });
+
+        // handle kill case
+        buttonSequence.OnKill(() =>
+        {
+            if (buttonTransform != null)
+            {
+                buttonTransform.position = targetPosition;
+                buttonTransform.localScale = originalScale;
+            }
+
+            onComplete?.Invoke();
+        });
+    }
 }

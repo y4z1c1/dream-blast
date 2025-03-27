@@ -109,23 +109,48 @@ public class GameManager : MonoBehaviour
     // animate the level button appearing from bottom
     private void AnimateLevelButtonAppear()
     {
-        // no animation, just ensure button is visible and interactive
+        // validation
         if (levelButtonObj == null)
             return;
 
-        // make sure button is active and visible
-        levelButtonObj.SetActive(true);
+        // try to get animation manager
+        AnimationManager animManager = AnimationManager.Instance;
 
-        // ensure any canvas group is fully visible
-        CanvasGroup canvasGroup = levelButtonObj.GetComponent<CanvasGroup>();
-        if (canvasGroup != null)
-            canvasGroup.alpha = 1f;
+        if (animManager != null)
+        {
+            // ensure button is active but initially disable interaction until animation finishes
+            levelButtonObj.SetActive(true);
+            if (levelButton != null)
+                levelButton.interactable = false;
 
-        // enable interaction immediately
-        if (levelButton != null)
-            levelButton.interactable = true;
+            // use animation manager for appearance animation
+            animManager.AnimateLevelButtonAppearance(
+                levelButtonObj.transform,
+                0.7f,  // duration
+                12f,   // offset from bottom
+                () =>
+                {
+                    // re-enable button interaction after animation completes
+                    if (levelButton != null)
+                        levelButton.interactable = true;
+                }
+            );
+        }
+        else
+        {
+            // fallback if animation manager not available
+            // make sure button is active and visible
+            levelButtonObj.SetActive(true);
 
+            // ensure any canvas group is fully visible
+            CanvasGroup canvasGroup = levelButtonObj.GetComponent<CanvasGroup>();
+            if (canvasGroup != null)
+                canvasGroup.alpha = 1f;
 
+            // enable interaction immediately
+            if (levelButton != null)
+                levelButton.interactable = true;
+        }
     }
 
     // load the level scene
@@ -133,9 +158,6 @@ public class GameManager : MonoBehaviour
     {
         // load the level scene
         SceneManager.LoadScene(LEVEL_SCENE);
-
-
-        // the levelcontroller will handle loading the current level data
     }
 
     public void RestartLevel()
@@ -274,9 +296,8 @@ public class GameManager : MonoBehaviour
     // Helper to wait for button animation to complete
     private IEnumerator WaitForButtonAnimation(System.Action onComplete)
     {
-        // Wait for the animation to complete - we use a fixed duration that matches PopupAnimations
-        // In PopupAnimations.PlayButtonClickAnimation the full animation takes about 0.15s 
-        yield return new WaitForSeconds(0.2f);
+
+        yield return new WaitForSeconds(0.1f);
 
         // Complete
         onComplete?.Invoke();

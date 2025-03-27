@@ -913,6 +913,89 @@ public class AnimationManager : MonoBehaviour
         CubeAnimations.PlayRocketIndicatorAnimation(cube, show, defaultSprite, rocketSprite, glowDuration, glowIntensity);
     }
 
+    // animate grid appearing from bottom
+    public void AnimateGridAppearance(Transform gridCellsContainer, Transform gridBackground, float duration = 0.8f, float offset = 20f, System.Action onComplete = null)
+    {
+        // early validation
+        if (gridCellsContainer == null)
+        {
+            if (debugMode) Debug.LogWarning("[AnimationManager] Attempted to animate grid appearance with null container");
+            onComplete?.Invoke();
+            return;
+        }
+
+        if (!AreUIAnimationsEnabled())
+        {
+            if (debugMode) Debug.Log("[AnimationManager] UI animations disabled, showing grid immediately");
+
+            // make elements visible without animation
+            gridCellsContainer.gameObject.SetActive(true);
+            if (gridBackground != null)
+                gridBackground.gameObject.SetActive(true);
+
+            onComplete?.Invoke();
+            return;
+        }
+
+        if (debugMode) Debug.Log("[AnimationManager] Starting grid appearance animation");
+
+        // delegate to GeneralAnimations
+        GeneralAnimations.PlayGridAppearAnimation(gridCellsContainer, gridBackground, duration, offset, onComplete);
+    }
+
+    // animate header appearing from top
+    public void AnimateHeaderAppearance(Transform headerTransform, float duration = 0.5f, float offset = 5f, System.Action onComplete = null)
+    {
+        // early validation
+        if (headerTransform == null)
+        {
+            if (debugMode) Debug.LogWarning("[AnimationManager] Attempted to animate header appearance with null transform");
+            onComplete?.Invoke();
+            return;
+        }
+
+        if (!AreUIAnimationsEnabled())
+        {
+            if (debugMode) Debug.Log("[AnimationManager] UI animations disabled, showing header immediately");
+            onComplete?.Invoke();
+            return;
+        }
+
+        if (debugMode) Debug.Log("[AnimationManager] Starting header appearance animation");
+
+        // delegate to GeneralAnimations
+        GeneralAnimations.PlayHeaderAppearAnimation(headerTransform, duration, offset, onComplete);
+    }
+
+    // animate level button appearing from bottom
+    public void AnimateLevelButtonAppearance(Transform buttonTransform, float duration = 0.6f, float offset = 8f, System.Action onComplete = null)
+    {
+        // early validation
+        if (buttonTransform == null)
+        {
+            if (debugMode) Debug.LogWarning("[AnimationManager] Attempted to animate level button appearance with null transform");
+            onComplete?.Invoke();
+            return;
+        }
+
+        if (!AreUIAnimationsEnabled())
+        {
+            if (debugMode) Debug.Log("[AnimationManager] UI animations disabled, showing level button immediately");
+
+            // ensure button is visible even without animation
+            buttonTransform.gameObject.SetActive(true);
+
+            // invoke callback
+            onComplete?.Invoke();
+            return;
+        }
+
+        if (debugMode) Debug.Log("[AnimationManager] Starting level button appearance animation");
+
+        // delegate to GeneralAnimations
+        GeneralAnimations.PlayLevelButtonAppearAnimation(buttonTransform, duration, offset, onComplete);
+    }
+
     // animate cube shake for invalid move
     public void AnimateInvalidMove(Cube cube, float duration = 0.15f, float strength = 0.1f)
     {

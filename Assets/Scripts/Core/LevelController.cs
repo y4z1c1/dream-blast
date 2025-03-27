@@ -241,6 +241,8 @@ public class LevelController : MonoBehaviour
         // Now that all obstacles are created, initialize the obstacle counter
         InitializeObstacleCounter();
 
+        // Animate the grid appearing from the bottom
+        gridManager.AnimateGridAppearance();
 
         // scan for potential matches
         if (matchFinder != null)
@@ -248,8 +250,6 @@ public class LevelController : MonoBehaviour
             matchFinder.ScanGridForMatches();
         }
     }
-
-
 
     // create a grid item based on its type
     private void CreateGridItem(string itemType, GridCell cell, int x, int y)
@@ -322,7 +322,7 @@ public class LevelController : MonoBehaviour
             return;
         }
 
-        // parent the cube to maintain proper hierarchy
+        // parent the cube to the grid cell's parent (which is gridCellsContainer)
         cubeObject.transform.SetParent(cell.transform.parent);
 
         // initialize the cube

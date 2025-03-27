@@ -815,43 +815,6 @@ public class PopupController : MonoBehaviour
         StartCoroutine(AnimatePopupDisappear());
     }
 
-    // potentially unused method - only called internally
-    public void OnNextLevelButtonClicked()
-    {
-        if (debugMode) Debug.Log("onnextlevelbuttonclicked");
-
-        // prevent multiple clicks during animation
-        if (isAnimating) return;
-        isAnimating = true;
-
-        StartCoroutine(AnimateButtonClickAndAction(mainButton, () =>
-        {
-            ClosePopup();
-            AdvanceToNextLevel();
-        }));
-    }
-
-    // potentially unused method - only called by onnextlevelbuttonclicked
-    public void AdvanceToNextLevel()
-    {
-        if (debugMode) Debug.Log("advancetonextlevel called");
-
-        // find the level controller and advance to next level
-        LevelController levelController = FindFirstObjectByType<LevelController>();
-        if (levelController != null)
-        {
-            levelController.AdvanceToNextLevel();
-        }
-        else
-        {
-            Debug.LogWarning("levelcontroller not found, using gamemanager fallback");
-            // fallback if level controller not found
-            if (GameManager.Instance != null)
-                GameManager.Instance.StartLevel();
-            else
-                Debug.LogError("gamemanager.instance is null in advancetonextlevel!");
-        }
-    }
 
     // called from showfinalwinpopup
     public void OnMainMenuButtonClicked()
@@ -919,32 +882,7 @@ public class PopupController : MonoBehaviour
         if (debugMode) Debug.Log("Killed all popup tweens");
     }
 
-    // potentially unused method - not found references in codebase
-    private Canvas GetRootCanvas()
-    {
-        // try to find canvas in parents of popup container
-        Canvas canvas = popupContainer?.GetComponentInParent<Canvas>();
 
-        // if found, walk up to find the root canvas
-        if (canvas != null)
-        {
-            Transform parent = canvas.transform.parent;
-            while (parent != null)
-            {
-                Canvas parentCanvas = parent.GetComponent<Canvas>();
-                if (parentCanvas != null)
-                {
-                    // found a parent canvas, continue
-                    canvas = parentCanvas;
-                }
-                parent = parent.parent;
-            }
 
-            // now canvas should be the root
-            return canvas;
-        }
 
-        // no canvas found in hierarchy, try finding any in scene
-        return FindFirstObjectByType<Canvas>();
-    }
 }

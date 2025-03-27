@@ -23,8 +23,23 @@ public class GridManager : MonoBehaviour
     // reference to grid's parent transform
     private Transform gridContainer;
 
+    // separate container for grid cells
+    private Transform gridCellsContainer;
+
     // game over flag
     private bool tapEnabled = true;
+
+    // animation parameters
+    private Vector3 initialGridPosition;
+    private Vector3 targetGridPosition;
+    private Vector3 initialBgPosition;  // background initial position
+    private Vector3 targetBgPosition;   // background target position
+    private bool isAnimatingAppearance = false;
+    private float animationDuration = 0.8f;
+    private float animationTimer = 0f;
+
+    // animation manager reference
+    private AnimationManager animationManager;
 
     // set and get game over
     public bool TapEnabled { get => tapEnabled; set => tapEnabled = value; }
@@ -33,6 +48,9 @@ public class GridManager : MonoBehaviour
     {
         // initialize the grid
         gridContainer = transform;
+
+        // get animation manager reference
+        animationManager = AnimationManager.Instance;
     }
 
     private void Start()
@@ -48,6 +66,15 @@ public class GridManager : MonoBehaviour
 
         // create background first
         CreateGridBackground();
+
+        // create a container for grid cells
+        GameObject cellsContainer = new GameObject("GridCellsContainer");
+        cellsContainer.transform.SetParent(transform);
+        cellsContainer.transform.localPosition = Vector3.zero;
+        gridCellsContainer = cellsContainer.transform;
+
+        // hide cells container initially
+        gridCellsContainer.gameObject.SetActive(false);
 
         // initialize the grid array
         grid = new GridCell[gridWidth, gridHeight];
@@ -72,7 +99,7 @@ public class GridManager : MonoBehaviour
                 );
 
                 // create cell gameobject
-                GameObject cellObject = Instantiate(cellPrefab, position, Quaternion.identity, gridContainer);
+                GameObject cellObject = Instantiate(cellPrefab, position, Quaternion.identity, gridCellsContainer);
                 cellObject.name = $"Cell_{x}_{y}";
 
                 // add gridcell component
@@ -108,6 +135,20 @@ public class GridManager : MonoBehaviour
     // creates the background for the grid
     private void CreateGridBackground()
     {
+        // destroy any existing background first
+        if (gridBackground != null)
+        {
+            Destroy(gridBackground.gameObject);
+            gridBackground = null;
+        }
+
+        // check for any existing background object
+        Transform existingBackground = transform.Find("GridBackground");
+        if (existingBackground != null)
+        {
+            Destroy(existingBackground.gameObject);
+        }
+
         // calculate the size needed for the background with padding
         float width = gridWidth * cellSize;
         float height = gridHeight * cellSize;
@@ -120,6 +161,9 @@ public class GridManager : MonoBehaviour
 
         // position it with the same offset as the grid (-2f on y axis)
         gridBackground.transform.localPosition = new Vector3(0, -2f, 0.1f);
+
+        // hide background initially
+        gridBackground.gameObject.SetActive(false);
 
         // if using 9-slice scaling, set the size directly
         if (gridBackgroundPrefab.drawMode == SpriteDrawMode.Sliced)
@@ -304,10 +348,20 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        // clear any other child objects
+        // If gridCellsContainer exists, destroy it to create a new one
+        if (gridCellsContainer != null)
+        {
+            Destroy(gridCellsContainer.gameObject);
+            gridCellsContainer = null;
+        }
+
+        // Don't destroy the background here, it will be handled in CreateGridBackground
+
+        // clear any other child objects except don't try to destroy the background here
+        // as we'll handle it in CreateGridBackground
         foreach (Transform child in transform)
         {
-            // don't destroy the background or other non-grid elements
+            // skip the background as we'll handle it separately
             if (child.name != "GridBackground")
             {
                 Destroy(child.gameObject);
@@ -366,5 +420,82 @@ public class GridManager : MonoBehaviour
         return allCellsValid;
     }
 
+    // animate grid appearing from bottom
+    public void AnimateGridAppearance()
+    {
+        // disable tap until animation completes
+        tapEnabled = false;
 
+        // use animation manager if available
+        if (animationManager != null)
+        {
+            animationManager.AnimateGridAppearance(
+                gridCellsContainer,
+                gridBackground ? gridBackground.transform : null,
+                0.8f,  // duration
+                40f,   // offset
+                () => { tapEnabled = true; }  // on complete callback
+            );
+        }
+        else
+        {
+            // fallback to direct animation if animation manager not found
+            // store target position (current position)
+            targetGridPosition = gridCellsContainer.position;
+
+            // set initial position for cells (offset downward)
+            initialGridPosition = targetGridPosition + new Vector3(0f, -10f, 0f);
+            gridCellsContainer.position = initialGridPosition;
+
+            // make grid cells visible
+            gridCellsContainer.gameObject.SetActive(true);
+
+            // set up background for animation
+            if (gridBackground != null)
+            {
+                // store background target position
+                targetBgPosition = gridBackground.transform.position;
+
+                // set initial background position (offset downward)
+                initialBgPosition = targetBgPosition + new Vector3(0f, -10f, 0f);
+                gridBackground.transform.position = initialBgPosition;
+
+                // make background visible
+                gridBackground.gameObject.SetActive(true);
+            }
+
+            // start animation
+            isAnimatingAppearance = true;
+            animationTimer = 0f;
+        }
+    }
+
+    private void Update()
+    {
+        // Only handle animation manually if not using animation manager
+        if (isAnimatingAppearance && animationManager == null)
+        {
+            animationTimer += Time.deltaTime;
+            float progress = Mathf.Clamp01(animationTimer / animationDuration);
+
+            // use smooth step for easing
+            float smoothProgress = Mathf.SmoothStep(0f, 1f, progress);
+
+            // update cells position
+            gridCellsContainer.position = Vector3.Lerp(initialGridPosition, targetGridPosition, smoothProgress);
+
+            // update background position if it exists
+            if (gridBackground != null)
+            {
+                gridBackground.transform.position = Vector3.Lerp(initialBgPosition, targetBgPosition, smoothProgress);
+            }
+
+            // check if animation is complete
+            if (progress >= 1f)
+            {
+                isAnimatingAppearance = false;
+                tapEnabled = true;
+            }
+        }
+    }
 }
