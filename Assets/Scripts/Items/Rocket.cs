@@ -116,7 +116,13 @@ public class Rocket : GridItem
     // override the ontap method from griditem
     public override void OnTap()
     {
-        if (isExploding) return;
+        if (isExploding)
+        {
+            Debug.Log("Rocket is exploding, skipping tap");
+            return;
+        }
+
+
         if (!gridManager.TapEnabled)
         {
             return;
@@ -135,6 +141,11 @@ public class Rocket : GridItem
     {
         if (isExploding) return;
         isExploding = true;
+
+        if (wasTriggeredByAnotherRocket)
+        {
+            StartCoroutine(WaitForExplosion(this, 0.1f));
+        }
 
         Debug.Log($"Rocket exploding at {GetGridPosition()}");
 
@@ -322,8 +333,9 @@ public class Rocket : GridItem
                 // increment active explosion counter for the chain reaction
                 activeExplosions++;
 
-                // trigger explosion after short delay
-                StartCoroutine(TriggerExplosionWithDelay(rocket, 0.1f));
+                rocket.Explode();
+
+
             }
             else if (item is Obstacle)
             {
@@ -334,7 +346,7 @@ public class Rocket : GridItem
         }
     }
 
-    private IEnumerator TriggerExplosionWithDelay(Rocket rocket, float delay)
+    private IEnumerator WaitForExplosion(Rocket rocket, float delay)
     {
         yield return new WaitForSeconds(delay);
         rocket.Explode();

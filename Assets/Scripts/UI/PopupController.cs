@@ -22,10 +22,14 @@ public class PopupController : MonoBehaviour
     [SerializeField] private Button closeButton;
     [SerializeField] private Button mainButton;
     [SerializeField] private TextMeshProUGUI mainButtonText;
+    [SerializeField] private Transform particleContainer; // separate container for particles
 
     [Header("Debug & Animation Settings")]
     [SerializeField] private bool debugMode = false; // debug mode to show extra logs
     [SerializeField] private bool useAnimations = true;
+    [SerializeField] private float animationDuration = 0.5f;
+    [SerializeField] private float fadeInDuration = 0.3f;
+    [SerializeField] private float buttonDelay = 0.1f;
 
     // block raycasts during popup animations
     [SerializeField] private GraphicRaycaster popupCanvasRaycaster;
@@ -48,9 +52,6 @@ public class PopupController : MonoBehaviour
 
         // make sure this gameobject is active
         gameObject.SetActive(true);
-
-        // initialize scales for all ui elements
-        ResetElementScales();
 
         // hide popup by default
         if (popupContainer != null)
@@ -101,7 +102,7 @@ public class PopupController : MonoBehaviour
         if (popupContainer != null && popupContainer.GetComponent<CanvasGroup>() == null)
         {
             CanvasGroup group = popupContainer.AddComponent<CanvasGroup>();
-            group.alpha = 0f;
+            group.alpha = 1f; // keep alpha at 1 since we'll animate elements individually
             group.interactable = false;
             group.blocksRaycasts = false;
         }
@@ -114,11 +115,23 @@ public class PopupController : MonoBehaviour
             {
                 overlayCanvas = backgroundOverlay.gameObject.AddComponent<Canvas>();
                 overlayCanvas.overrideSorting = true;
-                overlayCanvas.sortingOrder = 999; // high to ensure it's above game elements
+                overlayCanvas.sortingOrder = 50; // high to ensure it's above game elements
 
                 // add graphic raycaster to block inputs
                 GraphicRaycaster raycaster = backgroundOverlay.gameObject.AddComponent<GraphicRaycaster>();
             }
+        }
+
+        // create particle container if not assigned
+        if (particleContainer == null && popupContainer != null)
+        {
+            GameObject particlesObj = new GameObject("ParticleContainer");
+            particleContainer = particlesObj.transform;
+            particleContainer.SetParent(popupContainer.transform);
+            particleContainer.localPosition = Vector3.zero;
+            particleContainer.localScale = Vector3.one;
+
+            if (debugMode) Debug.Log("created particle container as it was not assigned");
         }
     }
 
@@ -447,9 +460,7 @@ public class PopupController : MonoBehaviour
         // activate the popup container
         popupContainer.SetActive(true);
 
-        // start with a small initial scale instead of zero to avoid scaling issues
-        popupContainer.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-
+        // don't set initial scale here - let animations handle it
         // start the simple animation routine
         StartCoroutine(AnimatePopupAppear());
     }
@@ -500,7 +511,6 @@ public class PopupController : MonoBehaviour
         {
             // fallback if animations disabled or no animationmanager
             // set final values directly
-            popupContainer.transform.localScale = Vector3.one;
             canvasGroup.alpha = 1f;
             canvasGroup.interactable = true;
             canvasGroup.blocksRaycasts = true;
@@ -558,7 +568,6 @@ public class PopupController : MonoBehaviour
                     canvasGroup.interactable = false;
                     canvasGroup.blocksRaycasts = false;
                 }
-                popupContainer.transform.localScale = Vector3.zero;
             }
 
             if (backgroundOverlay != null)
@@ -622,15 +631,12 @@ public class PopupController : MonoBehaviour
         if (animManager != null && useAnimations)
         {
             // use animationmanager to animate win celebration
-            animManager.AnimateWinCelebration(popupContainer);
+            // but only pass the UI base for animation, use particleContainer for particles
+            animManager.AnimateWinCelebration(popupContainer, particleContainer);
 
-            if (debugMode) Debug.Log("Playing win celebration animation");
+            if (debugMode) Debug.Log("Playing win celebration animation with StarConfetti and AddStarConfetti effects");
         }
-        else
-        {
-            // no animation - ensure scales are correct
-            popupContainer.transform.localScale = Vector3.one;
-        }
+        // no need to set scales - let animations handle it
     }
 
     // special celebration for final win with extra effects
@@ -643,15 +649,12 @@ public class PopupController : MonoBehaviour
         if (animManager != null && useAnimations)
         {
             // use animationmanager to animate win celebration
-            animManager.AnimateWinCelebration(popupContainer);
+            // but only pass the UI base for animation, use particleContainer for particles
+            animManager.AnimateWinCelebration(popupContainer, particleContainer);
 
-            if (debugMode) Debug.Log("Playing enhanced win celebration for final win");
+            if (debugMode) Debug.Log("Playing enhanced win celebration for final win with StarConfetti and AddStarConfetti effects");
         }
-        else
-        {
-            // no animation - ensure scales are correct
-            popupContainer.transform.localScale = Vector3.one;
-        }
+        // no need to set scales - let animations handle it
     }
 
     // original simple celebration animation maintained for compatibility
@@ -683,55 +686,56 @@ public class PopupController : MonoBehaviour
         }
     }
 
-    // reset all ui element scales to ensure proper visibility
+    // reset ui element scales only if they're zero (emergency fallback)
     private void ResetElementScales()
     {
-        // check and reset popup container scale
-        if (popupContainer != null && (popupContainer.transform.localScale.x < 0.5f || popupContainer.transform.localScale == Vector3.zero))
+
+        // check and reset popup container scale only if zero
+        if (popupContainer != null && popupContainer.transform.localScale == Vector3.zero)
         {
-            if (debugMode) Debug.Log("resetting popupcontainer scale to (1,1,1)");
+            if (debugMode) Debug.Log("emergency fix: popupcontainer had zero scale - resetting to (1,1,1)");
             popupContainer.transform.localScale = Vector3.one;
         }
 
-        // check and reset popup ribbon
-        if (popupRibbon != null && popupRibbon.transform.localScale.x == 0)
+        // check and reset popup ribbon only if zero
+        if (popupRibbon != null && popupRibbon.transform.localScale == Vector3.zero)
         {
-            if (debugMode) Debug.Log("resetting popupribbon scale to (1,1,1)");
+            if (debugMode) Debug.Log("emergency fix: popupribbon had zero scale - resetting to (1,1,1)");
             popupRibbon.transform.localScale = Vector3.one;
         }
 
-        // check and reset title text
-        if (titleText != null && titleText.transform.localScale.x == 0)
+        // check and reset title text only if zero
+        if (titleText != null && titleText.transform.localScale == Vector3.zero)
         {
-            if (debugMode) Debug.Log("resetting titletext scale to (1,1,1)");
+            if (debugMode) Debug.Log("emergency fix: titletext had zero scale - resetting to (1,1,1)");
             titleText.transform.localScale = Vector3.one;
         }
 
-        // check and reset main button
-        if (mainButton != null && mainButton.transform.localScale.x == 0)
+        // check and reset main button only if zero
+        if (mainButton != null && mainButton.transform.localScale == Vector3.zero)
         {
-            if (debugMode) Debug.Log("resetting mainbutton scale to (1,1,1)");
+            if (debugMode) Debug.Log("emergency fix: mainbutton had zero scale - resetting to (1,1,1)");
             mainButton.transform.localScale = Vector3.one;
         }
 
-        // check and reset main button text
-        if (mainButtonText != null && mainButtonText.transform.localScale.x == 0)
+        // check and reset main button text only if zero
+        if (mainButtonText != null && mainButtonText.transform.localScale == Vector3.zero)
         {
-            if (debugMode) Debug.Log("resetting mainbuttontext scale to (1,1,1)");
+            if (debugMode) Debug.Log("emergency fix: mainbuttontext had zero scale - resetting to (1,1,1)");
             mainButtonText.transform.localScale = Vector3.one;
         }
 
-        // check and reset close button
-        if (closeButton != null && closeButton.transform.localScale.x == 0)
+        // check and reset close button only if zero
+        if (closeButton != null && closeButton.transform.localScale == Vector3.zero)
         {
-            if (debugMode) Debug.Log("resetting closebutton scale to (1,1,1)");
+            if (debugMode) Debug.Log("emergency fix: closebutton had zero scale - resetting to (1,1,1)");
             closeButton.transform.localScale = Vector3.one;
         }
 
-        // check and reset popup base
-        if (popupBase != null && popupBase.transform.localScale.x == 0)
+        // check and reset popup base only if zero
+        if (popupBase != null && popupBase.transform.localScale == Vector3.zero)
         {
-            if (debugMode) Debug.Log("resetting popupbase scale to (1,1,1)");
+            if (debugMode) Debug.Log("emergency fix: popupbase had zero scale - resetting to (1,1,1)");
             popupBase.transform.localScale = Vector3.one;
         }
     }

@@ -487,6 +487,16 @@ public class RocketAnimations : MonoBehaviour
 
         if (IsDebugEnabled()) Debug.Log($"[RocketAnimations] Starting rocket combination animation with {paths.Count} paths");
 
+
+
+        // get camera shake parameters for combo explosion
+        float shakeIntensity = animManager.GetComboExplosionShakeIntensity();
+        float shakeDuration = animManager.GetComboExplosionShakeDuration();
+
+        // apply camera shake for combo explosion
+        CreateCameraShake(shakeIntensity, shakeDuration);
+
+
         // get the world position of the rocket
         Vector3 rocketWorldPos = gridManager.GridToWorldPosition(rocketPosition.x, rocketPosition.y);
 
@@ -617,12 +627,6 @@ public class RocketAnimations : MonoBehaviour
         {
             if (IsDebugEnabled()) Debug.Log("[RocketAnimations] All combination paths complete");
 
-            // get camera shake parameters for combo explosion
-            float shakeIntensity = animManager.GetComboExplosionShakeIntensity();
-            float shakeDuration = animManager.GetComboExplosionShakeDuration();
-
-            // apply camera shake for combo explosion
-            CreateCameraShake(shakeIntensity, shakeDuration);
 
             onComplete?.Invoke();
         });

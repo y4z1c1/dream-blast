@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      vertical_rocket_part_bottom_0: -4697989437084310921
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

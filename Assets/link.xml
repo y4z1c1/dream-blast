@@ -1,0 +1,9 @@
+<linker>
+  <assembly fullname="UnityEngine.UI">
+    <type fullname="UnityEngine.UI.Graphic" preserve="all"/>
+    <type fullname="UnityEngine.UI.Image" preserve="all"/>
+    <type fullname="UnityEngine.UI.ScrollRect" preserve="all"/>
+    <type fullname="UnityEngine.UI.Slider" preserve="all"/>
+    <type fullname="UnityEngine.UI.LayoutElement" preserve="all"/>
+  </assembly>
+</linker> 

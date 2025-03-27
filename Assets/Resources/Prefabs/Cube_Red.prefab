@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 7409799346474133797}
   - component: {fileID: 6559264309148912120}
   - component: {fileID: 4577053657169148633}
-  - component: {fileID: -2047324551848608995}
   m_Layer: 0
   m_Name: Cube_Red
   m_TagString: Untagged
@@ -151,15 +150,5 @@ MonoBehaviour:
   color: 0
   defaultSprite: {fileID: 8166710274925509176, guid: e347f72e916b44c868ff1b4c82b3361c, type: 3}
   rocketSprite: {fileID: -4162601588504768772, guid: 1d4501426e1b0484f9f962e4490da2d5, type: 3}
---- !u!114 &-2047324551848608995
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3136655904736161310}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fe24f5ebe7c14a53b67aa0f099465f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  crossoverAnimDuration: 0.3
+  scaleUpFactor: 1.2

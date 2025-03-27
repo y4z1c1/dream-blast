@@ -121,11 +121,29 @@ public class ParticleManager : MonoBehaviour
             }
         }
 
-        // set position and parent
+        // set position
         particleInstance.transform.position = position;
 
+        // ensure the scale is correct before parenting to avoid scale inheritance issues
+        particleInstance.transform.localScale = Vector3.one;
+
+        // if parent is specified, make this a child of that parent
         if (parent != null)
+        {
             particleInstance.transform.SetParent(parent);
+
+            // log warning if parent has zero scale
+            if (parent.localScale == Vector3.zero)
+            {
+                Debug.LogWarning($"[PARTICLE] Parent of {effectName} particle has zero scale! This may cause particles to be invisible.");
+            }
+
+            // force the local scale to stay at 1 even after parenting
+            particleInstance.transform.localScale = Vector3.one;
+
+            if (logParticleUsage)
+                Debug.Log($"[PARTICLE] Parented to {parent.name} with scale {parent.localScale}");
+        }
 
         // play the effect
         particleInstance.Play();

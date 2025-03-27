@@ -724,7 +724,7 @@ public class AnimationManager : MonoBehaviour
     }
 
     // animate win celebration
-    public void AnimateWinCelebration(GameObject popupContainer)
+    public void AnimateWinCelebration(GameObject popupContainer, Transform particleContainer = null)
     {
         // early validation
         if (popupContainer == null)
@@ -748,8 +748,26 @@ public class AnimationManager : MonoBehaviour
             if (debugMode) Debug.Log("[AnimationManager] Finding ParticleManager for win celebration: " + (particleManager != null));
         }
 
-        // delegate to PopupAnimations
-        PopupAnimations.PlayWinCelebrationAnimation(popupContainer);
+        // if no specific particle container was provided, try to find one inside the popupContainer
+        if (particleContainer == null)
+        {
+            // look for a child named "ParticleContainer"
+            Transform foundParticleContainer = popupContainer.transform.Find("ParticleContainer");
+            if (foundParticleContainer != null)
+            {
+                particleContainer = foundParticleContainer;
+                if (debugMode) Debug.Log("[AnimationManager] Found child ParticleContainer to use for particles");
+            }
+            else
+            {
+                // use popup container as fallback
+                particleContainer = popupContainer.transform;
+                if (debugMode) Debug.LogWarning("[AnimationManager] No ParticleContainer found, using popupContainer for particles");
+            }
+        }
+
+        // delegate to PopupAnimations - pass both containers
+        PopupAnimations.PlayWinCelebrationAnimation(popupContainer, particleContainer);
     }
 
     // animate title

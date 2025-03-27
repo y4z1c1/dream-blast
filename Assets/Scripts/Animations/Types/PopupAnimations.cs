@@ -70,6 +70,23 @@ public static class PopupAnimations
         if (IsDebugEnabled()) Debug.Log($"[PopupAnimations] Killed all tweens on {popupContainer.name} and children");
     }
 
+    // safely get original scale and ensure it's valid
+    private static Vector3 GetSafeOriginalScale(Transform transform)
+    {
+        if (transform == null) return Vector3.one;
+
+        Vector3 originalScale = transform.localScale;
+
+        // if scale is invalid (zero or very small), use Vector3.one as fallback
+        if (originalScale.x <= 0.1f || originalScale.y <= 0.1f || originalScale.z <= 0.1f)
+        {
+            if (IsDebugEnabled()) Debug.Log($"[PopupAnimations] Scale on {transform.name} was too small ({originalScale}), using Vector3.one");
+            return Vector3.one;
+        }
+
+        return originalScale;
+    }
+
     // animate a popup appearing with a bounce effect using dotween
     public static void PlayPopupShowAnimation(GameObject popupContainer, Image backgroundOverlay)
     {
@@ -120,11 +137,14 @@ public static class PopupAnimations
         {
             // set initial alpha to zero but keep interactable
             canvasGroup.alpha = 0f;
-            canvasGroup.interactable = false; // start as non-interactable until animation completes
-            canvasGroup.blocksRaycasts = false; // don't block raycasts initially
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
         }
 
-        Vector3 originalScale = Vector3.one;
+        // store original scale before we modify anything
+        Vector3 originalScale = GetSafeOriginalScale(popupContainer.transform);
+
+        // temporarily set to zero for animation
         popupContainer.transform.localScale = Vector3.zero;
 
         // hide all child ui elements initially
@@ -136,7 +156,7 @@ public static class PopupAnimations
         // scale animation with custom bounce
         popupSequence.Append(
             popupContainer.transform.DOScale(originalScale, adjustedDuration)
-            .SetEase(Ease.OutBack, 1.1f) // outback ease approximates the bounce effect
+            .SetEase(Ease.OutBack, 1.1f)
             .OnKill(() =>
             {
                 if (popupContainer != null)
@@ -179,8 +199,8 @@ public static class PopupAnimations
                 if (usingCanvasGroup && canvasGroup != null)
                 {
                     canvasGroup.alpha = 1f;
-                    canvasGroup.interactable = true; // now make it interactable
-                    canvasGroup.blocksRaycasts = true; // enable blocking raycasts
+                    canvasGroup.interactable = true;
+                    canvasGroup.blocksRaycasts = true;
                 }
 
                 // now show all child elements
@@ -189,21 +209,7 @@ public static class PopupAnimations
         });
     }
 
-    // helper to fade the overlay - dotween version no longer needs coroutines
-    private static void FadeOverlay(Image overlay, float startAlpha, float endAlpha, float duration)
-    {
-        if (overlay == null) return;
-
-        // set initial alpha
-        Color color = overlay.color;
-        color.a = startAlpha;
-        overlay.color = color;
-
-        // animate to end alpha
-        overlay.DOFade(endAlpha, duration);
-    }
-
-    // hide/show all immediate child ui elements - this function remains the same
+    // hide/show all immediate child ui elements
     private static void SetChildrenVisibility(GameObject parent, bool visible)
     {
         if (parent == null) return;
@@ -278,8 +284,8 @@ public static class PopupAnimations
 
         if (IsDebugEnabled()) Debug.Log($"[PopupAnimations] Starting popup hide animation with duration: {duration}, speed: {speedMultiplier}");
 
-        // store starting values
-        Vector3 startScale = popupContainer.transform.localScale;
+        // store starting scale - ensure it's valid
+        Vector3 currentScale = GetSafeOriginalScale(popupContainer.transform);
         Vector3 endScale = Vector3.zero;
 
         // check for canvasgroup
@@ -379,15 +385,8 @@ public static class PopupAnimations
 
         try
         {
-            // store valid original scale - do not modify this value
-            originalScale = button.transform.localScale;
-
-            // safety check - if scale is zero somehow, force it to one
-            if (originalScale.x == 0 && originalScale.y == 0 && originalScale.z == 0)
-            {
-                if (IsDebugEnabled()) Debug.LogWarning($"[PopupAnimations] Button {button.name} had zero scale - resetting to (1,1,1)");
-                originalScale = Vector3.one;
-            }
+            // store valid original scale - use safe method
+            originalScale = GetSafeOriginalScale(button.transform);
 
             // important: make button interactable immediately
             button.interactable = true;
@@ -483,20 +482,8 @@ public static class PopupAnimations
 
             try
             {
-                // ensure proper final scale is set according to element type
-                if (button.name == "MainButton")
-                {
-                    button.transform.localScale = Vector3.one; // scale 1,1,1
-                }
-                else if (button.name == "CloseButton")
-                {
-                    button.transform.localScale = Vector3.one; // scale 1,1,1
-                }
-                else
-                {
-                    // default - use the original scale
-                    button.transform.localScale = originalScale;
-                }
+                // restore original scale - don't set to arbitrary values
+                button.transform.localScale = originalScale;
 
                 // restore original colors
                 foreach (var entry in buttonColors)
@@ -525,19 +512,12 @@ public static class PopupAnimations
         if (!InitializeReferences() || button == null)
             return;
 
-        // safety check for scale
-        if (button.transform.localScale == Vector3.zero)
-        {
-            if (IsDebugEnabled()) Debug.LogWarning($"[PopupAnimations] Button {button.name} had zero scale in click animation - fixing");
-            button.transform.localScale = Vector3.one;
-        }
-
-        if (IsDebugEnabled()) Debug.Log($"[PopupAnimations] Starting button click animation for: {button.name}");
-
-        // store original scale
-        Vector3 originalScale = button.transform.localScale;
+        // get original scale - use safe method
+        Vector3 originalScale = GetSafeOriginalScale(button.transform);
         Vector3 pressedScale = originalScale * 0.8f;
         Vector3 releasedScale = originalScale * 1.05f;
+
+        if (IsDebugEnabled()) Debug.Log($"[PopupAnimations] Starting button click animation for: {button.name}");
 
         // get animation settings from animationmanager
         float duration = animManager.GetButtonPressAnimationDuration();
@@ -583,8 +563,8 @@ public static class PopupAnimations
         });
     }
 
-    // animate celebratory effect for win popup using dotween (simple bounce animation)
-    public static void PlayWinCelebrationAnimation(GameObject popupContainer)
+    // animate celebratory effect for win popup using dotween
+    public static void PlayWinCelebrationAnimation(GameObject popupContainer, Transform particleContainer = null)
     {
         if (!InitializeReferences() || popupContainer == null)
         {
@@ -594,25 +574,30 @@ public static class PopupAnimations
 
         if (IsDebugEnabled()) Debug.Log("[PopupAnimations] Starting win celebration animation");
 
-        // store original scale for restoration and animation
-        Vector3 originalScale = popupContainer.transform.localScale;
+        // Use the provided particle container or default to popup container if not provided
+        Transform particleTarget = particleContainer != null ? particleContainer : popupContainer.transform;
 
-        // ensure scale is not too small
-        if (originalScale.x < 0.5f || originalScale == Vector3.zero)
+        // create particle effects
+        if (particleManager != null)
         {
-            if (IsDebugEnabled()) Debug.LogWarning("[PopupAnimations] Popup container scale was too small for celebration - resetting to (1,1,1)");
-            originalScale = Vector3.one;
-            popupContainer.transform.localScale = originalScale;
+            // play both particle types on the particle container instead of UI container
+            particleManager.PlayEffect("StarConfetti", Vector3.zero, 1000.0f, particleTarget);
+            particleManager.PlayEffect("AddStarConfetti", Vector3.zero, 1000.0f, particleTarget);
+
+            if (IsDebugEnabled()) Debug.Log($"[PopupAnimations] Added celebration particle effects to {particleTarget.name}");
         }
 
-        // create a sequence for the celebration animation
+        // get original scale using safe method - only animate the UI container
+        Vector3 originalScale = GetSafeOriginalScale(popupContainer.transform);
+
+        // simple bounce celebration sequence
         Sequence celebrationSequence = DOTween.Sequence();
 
-        // use a custom animation path for the bounce effect with more pronounced bounce
+        // use a custom animation path for the bounce effect
         float duration = 0.5f;
-        float bounceAmount = 0.15f; // make bounce more visible - same as in popupcontroller
+        float bounceAmount = 0.15f;
 
-        // use a tweening value to control the bounce - just one clean bounce
+        // tweening value for bounce control
         float bounceValue = 0f;
         celebrationSequence.Append(
             DOTween.To(() => bounceValue, x =>
@@ -622,66 +607,31 @@ public static class PopupAnimations
                 float bounce = Mathf.Sin(x * Mathf.PI * 3) * (1 - x) * bounceAmount + 1f;
                 // ensure scale never goes too small
                 bounce = Mathf.Max(bounce, 0.9f);
-                popupContainer.transform.localScale = originalScale * bounce;
+
+                // animate based on original scale
+                if (popupContainer != null)
+                {
+                    popupContainer.transform.localScale = originalScale * bounce;
+                }
             }, 1f, duration)
             .SetEase(Ease.Linear)
         );
 
-        // set the final scale explicitly based on ui element
+        // ensure original scale is restored
         celebrationSequence.OnComplete(() =>
         {
             if (IsDebugEnabled()) Debug.Log("[PopupAnimations] Celebration animation complete");
 
-            // make sure we restore to a proper scale
-            if (popupContainer.name == "PopupContainer")
+            if (popupContainer != null)
             {
-                // base popupcontainer scale should be vector3.one
-                popupContainer.transform.localScale = Vector3.one;
-                if (IsDebugEnabled()) Debug.Log("[PopupAnimations] Set final scale to Vector3.one for PopupContainer");
-            }
-            else if (popupContainer.transform.Find("PopupBase") != null)
-            {
-                // from the screenshots, popupbase may need a specific scale
-                Transform popupBase = popupContainer.transform.Find("PopupBase");
-                if (popupBase != null)
-                {
-                    // check if we need the larger scale
-                    if (popupBase.localScale.x < 5f)
-                    {
-                        popupBase.localScale = new Vector3(10f, 10f, 10f);
-                        if (IsDebugEnabled()) Debug.Log("[PopupAnimations] Set PopupBase scale to (10,10,10)");
-                    }
-                }
-
-                // set reasonable scales for other elements if needed
-                Transform popupRibbon = popupContainer.transform.Find("PopupRibbon");
-                if (popupRibbon != null && popupRibbon.localScale.x < 3f)
-                {
-                    popupRibbon.localScale = new Vector3(6.97f, 6.97f, 6.97f);
-                    if (IsDebugEnabled()) Debug.Log("[PopupAnimations] Set PopupRibbon scale to (6.97,6.97,6.97)");
-                }
-
-                // set reasonable scales for title text
-                Transform titleText = popupContainer.transform.Find("TitleText");
-                if (titleText != null && titleText.localScale.x < 1f)
-                {
-                    titleText.localScale = new Vector3(2f, 2f, 2f);
-                    if (IsDebugEnabled()) Debug.Log("[PopupAnimations] Set TitleText scale to (2,2,2)");
-                }
-
-                // ensure parent container has proper scale
-                popupContainer.transform.localScale = Vector3.one;
-            }
-            else
-            {
-                // default - restore original scale
+                // restore original scale
                 popupContainer.transform.localScale = originalScale;
-                if (IsDebugEnabled()) Debug.Log("[PopupAnimations] Restored original scale: " + originalScale);
+                if (IsDebugEnabled()) Debug.Log($"[PopupAnimations] Restored original scale: {originalScale}");
             }
         });
     }
 
-    // animate title text appearing with a fade in and slide up using dotween
+    // animate title text appearing with a fade in and slide up
     public static void PlayTitleAnimation(TextMeshProUGUI titleText)
     {
         if (!InitializeReferences() || titleText == null)
@@ -728,21 +678,25 @@ public static class PopupAnimations
         {
             if (IsDebugEnabled()) Debug.Log("[PopupAnimations] Title animation completed");
 
-            titleText.rectTransform.anchoredPosition = originalPos;
-            titleText.color = originalColor;
+            if (titleText != null)
+            {
+                titleText.rectTransform.anchoredPosition = originalPos;
+                titleText.color = originalColor;
+            }
         });
     }
 
-    // animate a subtle shake effect for lose popup using dotween
+    // animate a subtle shake effect for lose popup
     public static void PlayShakeAnimation(Transform target, float intensity = 5f, float duration = 0.5f)
     {
         if (!InitializeReferences() || target == null)
             return;
 
-        if (IsDebugEnabled()) Debug.Log($"[PopupAnimations] Starting shake animation with intensity: {intensity}, duration: {duration}");
+        if (IsDebugEnabled()) Debug.Log($"[PopupAnimations] Starting shake animation with intensity: {intensity}");
 
-        // store original position
+        // store original position and scale
         Vector3 originalPosition = target.localPosition;
+        Vector3 originalScale = GetSafeOriginalScale(target);
 
         // use dotween's built-in shake animation
         target.DOShakePosition(duration, new Vector3(intensity, intensity, 0), 10, 90, false)
@@ -750,8 +704,12 @@ public static class PopupAnimations
             {
                 if (IsDebugEnabled()) Debug.Log("[PopupAnimations] Shake animation completed");
 
-                // restore original position
-                target.localPosition = originalPosition;
+                if (target != null)
+                {
+                    // restore original position and scale
+                    target.localPosition = originalPosition;
+                    target.localScale = originalScale;
+                }
             });
     }
 }

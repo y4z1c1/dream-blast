@@ -71,8 +71,10 @@ public class Cube : GridItem
     {
         if (!gridManager.TapEnabled)
         {
+            Debug.Log("Cube at " + GetGridPosition() + " tap disabled - not processing tap");
             return;
         }
+        Debug.Log("Cube at " + GetGridPosition() + " Processing tap");
         OnTap();
     }
 

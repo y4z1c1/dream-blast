@@ -807,7 +807,7 @@ MonoBehaviour:
     prefab: {fileID: 8048946261057178885, guid: 49036f99430ee406bb04a34f2b1f1634, type: 3}
     initialPoolSize: 12
   - poolName: Vase_3
-    prefab: {fileID: 3922019320433143892, guid: cc99e28bdbb1b4c9f8f69b7ba8b37cc6, type: 3}
+    prefab: {fileID: 3922019320433143892, guid: 0d2f1a38089074796bea8c05525377aa, type: 3}
     initialPoolSize: 12
   - poolName: RocketStar
     prefab: {fileID: 4410325682027117057, guid: be7073cfde32240568b73c0a26853d50, type: 3}
@@ -815,6 +815,12 @@ MonoBehaviour:
   - poolName: RocketSmoke
     prefab: {fileID: 4795033074851192994, guid: 810e11d964b424515abfaad2176d0b47, type: 3}
     initialPoolSize: 50
+  - poolName: StarConfetti
+    prefab: {fileID: 4411263931040811381, guid: 4a344889214c647f3831322691fd9e48, type: 3}
+    initialPoolSize: 5
+  - poolName: AddStarConfetti
+    prefab: {fileID: 4725887223105462462, guid: c4dc01c8bf375484fb7fddbb42d78073, type: 3}
+    initialPoolSize: 5
   poolParent: {fileID: 1962354345}
   particlesEnabled: 1
   logParticleUsage: 0
@@ -844,52 +850,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1884381939}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 28d3b2710a8fa49c59b89d26ee77702c, type: 3}
+  m_Script: {fileID: 11500000, guid: fa4e71bde94304e9091514525140d7aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  starParticlePrefab: {fileID: 4538241078722809841, guid: 95eb67a0779f143a88627935c579672e, type: 3}
-  additiveStarParticlePrefab: {fileID: 7249635218541063812, guid: 442c4bc300ae44baf8bbc894af886452, type: 3}
-  particlesPerBurst: 30
-  burstRadius: 20
-  minParticleSize: 0.2
-  maxParticleSize: 0.6
-  minLifetime: 1
-  maxLifetime: 3
-  gravity: 20
-  initialVelocity: 50
-  particleColors:
-  - r: 1
-    g: 0.3
-    b: 0.3
-    a: 1
-  - r: 0.3
-    g: 1
-    b: 0.3
-    a: 1
-  - r: 0.3
-    g: 0.3
-    b: 1
-    a: 1
-  - r: 1
-    g: 1
-    b: 0.3
-    a: 1
-  - r: 1
-    g: 0.3
-    b: 1
-    a: 1
-  - r: 0.3
-    g: 1
-    b: 1
-    a: 1
-  - r: 1
-    g: 0.6
-    b: 0.3
-    a: 1
-  systemLifetime: 0
-  maxSystemLifetime: 0
-  isActive: 0
-  canvasTransform: {fileID: 0}
+  particleSystems: []
+  poolParent: {fileID: 1962354345}
+  particlesEnabled: 1
+  logParticleUsage: 0
+  monitorPoolSizes: 1
 --- !u!1 &1912470835
 GameObject:
   m_ObjectHideFlags: 0
@@ -935,7 +903,7 @@ MonoBehaviour:
   rocketExplosionShakeIntensity: 0.02
   rocketExplosionShakeDuration: 0.2
   comboExplosionShakeIntensity: 0.05
-  comboExplosionShakeDuration: 0.3
+  comboExplosionShakeDuration: 0.8
   rocketStarEmissionMultiplier: 0.02
   rocketSmokeEmissionMultiplier: 0.5
   rocketStarSizeMultiplier: 0.2

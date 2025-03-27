@@ -487,30 +487,88 @@ public static class CubeAnimations
 
         if (IsDebugEnabled()) Debug.Log($"[CubeAnimations] Starting rocket indicator animation, show={show}");
 
+        // create a material instance for cross-fade effect
+        Material originalMaterial = spriteRenderer.material;
+        Material fadeMaterial = new Material(originalMaterial);
+        fadeMaterial.EnableKeyword("_ALPHABLEND_ON");
+
+        // setup for cross-fade
+        GameObject fadeObject = null;
+        SpriteRenderer fadeRenderer = null;
+
+        // create temporary object for the fade effect
+        fadeObject = new GameObject("FadeSprite");
+        fadeObject.transform.SetParent(cube.transform);
+        fadeObject.transform.localPosition = Vector3.zero;
+        fadeObject.transform.localRotation = Quaternion.identity;
+        fadeObject.transform.localScale = Vector3.one;
+
+        // add sprite renderer for the fade
+        fadeRenderer = fadeObject.AddComponent<SpriteRenderer>();
+        fadeRenderer.sortingOrder = spriteRenderer.sortingOrder + 1;
+        fadeRenderer.material = fadeMaterial;
+
         if (show)
         {
-            // Only animate when transitioning to rocket sprite
-            // Phase 1: Glow up
-            spriteRenderer.DOColor(new Color(glowIntensity, glowIntensity, glowIntensity, 1f), duration * 0.3f)
-                .SetEase(Ease.OutQuad)
-                .OnComplete(() =>
+            // setup for transition to rocket sprite
+            fadeRenderer.sprite = rocketSprite;
+            fadeRenderer.color = new Color(1f, 1f, 1f, 0f);
+
+            // sequence for smooth transition
+            Sequence showSequence = DOTween.Sequence();
+
+            // phase 1: glow up original sprite
+            showSequence.Append(spriteRenderer.DOColor(new Color(glowIntensity, glowIntensity, glowIntensity, 1f), duration * 0.1f)
+                .SetEase(Ease.OutQuad));
+
+            // phase 2: fade in rocket sprite
+            showSequence.Append(fadeRenderer.DOFade(1f, duration * 0.15f)
+                .SetEase(Ease.InOutQuad));
+
+            // phase 3: complete transition and cleanup
+            showSequence.OnComplete(() =>
+            {
+                // apply final state
+                spriteRenderer.sprite = rocketSprite;
+                spriteRenderer.color = Color.white;
+
+                // destroy temporary fade object
+                if (fadeObject != null)
                 {
-                    // Phase 2: Change sprite and glow down
-                    spriteRenderer.sprite = rocketSprite;
-                    spriteRenderer.DOColor(Color.white, duration * 0.7f)
-                        .SetEase(Ease.InQuad)
-                        .OnComplete(() =>
-                        {
-                            if (IsDebugEnabled()) Debug.Log("[CubeAnimations] Rocket indicator animation completed");
-                        });
-                });
+                    Object.Destroy(fadeObject);
+                }
+
+                if (IsDebugEnabled()) Debug.Log("[CubeAnimations] Rocket indicator show animation completed");
+            });
         }
         else
         {
-            // Instant transition back to normal sprite
-            spriteRenderer.sprite = defaultSprite;
-            spriteRenderer.color = Color.white;
-            if (IsDebugEnabled()) Debug.Log("[CubeAnimations] Instant transition to default sprite");
+            // setup for transition back to default sprite
+            fadeRenderer.sprite = defaultSprite;
+            fadeRenderer.color = new Color(1f, 1f, 1f, 0f);
+
+            // sequence for smooth transition without glow
+            Sequence hideSequence = DOTween.Sequence();
+
+            // remove glow phase, just fade in default sprite directly
+            hideSequence.Append(fadeRenderer.DOFade(1f, duration * 0.15f)
+                .SetEase(Ease.InOutQuad));
+
+            // complete transition and cleanup
+            hideSequence.OnComplete(() =>
+            {
+                // apply final state
+                spriteRenderer.sprite = defaultSprite;
+                spriteRenderer.color = Color.white;
+
+                // destroy temporary fade object
+                if (fadeObject != null)
+                {
+                    Object.Destroy(fadeObject);
+                }
+
+                if (IsDebugEnabled()) Debug.Log("[CubeAnimations] Rocket indicator hide animation completed");
+            });
         }
     }
 
