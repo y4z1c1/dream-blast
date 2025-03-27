@@ -432,7 +432,7 @@ public class GridManager : MonoBehaviour
             animationManager.AnimateGridAppearance(
                 gridCellsContainer,
                 gridBackground ? gridBackground.transform : null,
-                0.8f,  // duration
+                0.5f,  // duration
                 40f,   // offset
                 () => { tapEnabled = true; }  // on complete callback
             );

@@ -55,6 +55,28 @@ public class AnimationManager : MonoBehaviour
     [Tooltip("Duration of camera shake for combo rocket explosions")]
     [SerializeField] private float comboExplosionShakeDuration = 0.3f;
 
+    // rocket particle settings
+    [Header("Rocket Particle Settings")]
+    [Tooltip("Emission rate multiplier for RocketStar particle effect")]
+    [Range(0.1f, 3.0f)]
+    [SerializeField] private float rocketStarEmissionMultiplier = 1.0f;
+
+    [Tooltip("Emission rate multiplier for RocketSmoke particle effect")]
+    [Range(0.1f, 3.0f)]
+    [SerializeField] private float rocketSmokeEmissionMultiplier = 1.0f;
+
+    [Tooltip("Size multiplier for RocketStar particles")]
+    [Range(0.5f, 2.0f)]
+    [SerializeField] private float rocketStarSizeMultiplier = 1.0f;
+
+    [Tooltip("Size multiplier for RocketSmoke particles")]
+    [Range(0.5f, 2.0f)]
+    [SerializeField] private float rocketSmokeSizeMultiplier = 1.0f;
+
+    [Tooltip("Burst count multiplier for particle effects")]
+    [Range(0.5f, 2.0f)]
+    [SerializeField] private float particleBurstMultiplier = 1.0f;
+
     // obstacle animation settings
     [Header("Obstacle Animations")]
     [Tooltip("Duration for obstacle damage animation")]
@@ -318,6 +340,44 @@ public class AnimationManager : MonoBehaviour
     public float GetRocketExplosionShakeDuration() => rocketExplosionShakeDuration;
     public float GetComboExplosionShakeIntensity() => comboExplosionShakeIntensity;
     public float GetComboExplosionShakeDuration() => comboExplosionShakeDuration;
+
+    // particle configuration getters
+    public float GetRocketStarEmissionMultiplier() => rocketStarEmissionMultiplier;
+    public float GetRocketSmokeEmissionMultiplier() => rocketSmokeEmissionMultiplier;
+    public float GetRocketStarSizeMultiplier() => rocketStarSizeMultiplier;
+    public float GetRocketSmokeSizeMultiplier() => rocketSmokeSizeMultiplier;
+    public float GetParticleBurstMultiplier() => particleBurstMultiplier;
+
+    // particle configuration setters
+    public void SetRocketStarEmissionMultiplier(float value)
+    {
+        rocketStarEmissionMultiplier = Mathf.Clamp(value, 0.1f, 3.0f);
+        if (debugMode) Debug.Log($"[AnimationManager] RocketStar emission multiplier set to: {rocketStarEmissionMultiplier}");
+    }
+
+    public void SetRocketSmokeEmissionMultiplier(float value)
+    {
+        rocketSmokeEmissionMultiplier = Mathf.Clamp(value, 0.1f, 3.0f);
+        if (debugMode) Debug.Log($"[AnimationManager] RocketSmoke emission multiplier set to: {rocketSmokeEmissionMultiplier}");
+    }
+
+    public void SetRocketStarSizeMultiplier(float value)
+    {
+        rocketStarSizeMultiplier = Mathf.Clamp(value, 0.5f, 2.0f);
+        if (debugMode) Debug.Log($"[AnimationManager] RocketStar size multiplier set to: {rocketStarSizeMultiplier}");
+    }
+
+    public void SetRocketSmokeSizeMultiplier(float value)
+    {
+        rocketSmokeSizeMultiplier = Mathf.Clamp(value, 0.5f, 2.0f);
+        if (debugMode) Debug.Log($"[AnimationManager] RocketSmoke size multiplier set to: {rocketSmokeSizeMultiplier}");
+    }
+
+    public void SetParticleBurstMultiplier(float value)
+    {
+        particleBurstMultiplier = Mathf.Clamp(value, 0.5f, 2.0f);
+        if (debugMode) Debug.Log($"[AnimationManager] Particle burst multiplier set to: {particleBurstMultiplier}");
+    }
 
     // animate cube destruction and then destroy the gameobject
     public void AnimateCubeDestruction(Cube cube)

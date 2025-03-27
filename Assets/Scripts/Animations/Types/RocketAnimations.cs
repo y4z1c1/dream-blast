@@ -109,12 +109,19 @@ public class RocketAnimations : MonoBehaviour
         // clear existing particles before configuration
         smoke.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
+        // Get multipliers from animation manager
+        float emissionMultiplier = animManager.GetRocketSmokeEmissionMultiplier();
+        float sizeMultiplier = animManager.GetRocketSmokeSizeMultiplier();
+        float burstMultiplier = animManager.GetParticleBurstMultiplier();
+
         // main module - core particle properties
         // experimental values, these seem to work well
         var main = smoke.main;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.startLifetime = new ParticleSystem.MinMaxCurve(0.35f, 0.6f); // balanced lifetime
-        main.startSize = new ParticleSystem.MinMaxCurve(0.25f, 0.4f); // balanced particle size
+        main.startSize = new ParticleSystem.MinMaxCurve(
+            0.25f * sizeMultiplier,
+            0.4f * sizeMultiplier); // balanced particle size with multiplier
         main.startColor = new ParticleSystem.MinMaxGradient(
             new Color(1f, 0.95f, 0.7f, 0.25f),  // softer yellow, balanced opacity
             new Color(1f, 0.9f, 0.5f, 0.18f)    // golden yellow, balanced opacity
@@ -123,8 +130,8 @@ public class RocketAnimations : MonoBehaviour
         main.gravityModifier = -0.02f;         // very slight upward drift
 
         var emission = smoke.emission;
-        emission.rateOverTime = 25f;           // balanced emission rate
-        emission.rateOverDistance = 18f;       // balanced trail density
+        emission.rateOverTime = 25f * emissionMultiplier;           // balanced emission rate with multiplier
+        emission.rateOverDistance = 18f * emissionMultiplier;       // balanced trail density with multiplier
 
         var shape = smoke.shape;
         shape.shapeType = ParticleSystemShapeType.Sphere;
@@ -177,8 +184,8 @@ public class RocketAnimations : MonoBehaviour
         {
             renderer.renderMode = ParticleSystemRenderMode.Billboard;
             renderer.sortMode = ParticleSystemSortMode.YoungestInFront;
-            renderer.minParticleSize = 0.12f;  // balanced minimum size
-            renderer.maxParticleSize = 1.6f;   // balanced maximum size
+            renderer.minParticleSize = 0.12f * sizeMultiplier;  // balanced minimum size with multiplier
+            renderer.maxParticleSize = 1.6f * sizeMultiplier;   // balanced maximum size with multiplier
         }
 
         // play the effect
@@ -773,12 +780,19 @@ public class RocketAnimations : MonoBehaviour
         // clear any existing particles and stop to configure before playing
         trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
+        // Get multipliers from animation manager
+        float emissionMultiplier = animManager.GetRocketStarEmissionMultiplier();
+        float sizeMultiplier = animManager.GetRocketStarSizeMultiplier();
+        float burstMultiplier = animManager.GetParticleBurstMultiplier();
+
         // main module settings
         // experimental vales, these seem to work well
         var main = trail.main;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.startLifetime = new ParticleSystem.MinMaxCurve(0.3f, 0.7f);
-        main.startSize = new ParticleSystem.MinMaxCurve(0.4f, 0.7f);
+        main.startSize = new ParticleSystem.MinMaxCurve(
+            0.4f * sizeMultiplier,
+            0.7f * sizeMultiplier); // apply size multiplier
         main.startColor = new ParticleSystem.MinMaxGradient(
             new Color(1f, 0.9f, 0.2f, 1f),
             new Color(1f, 0.7f, 0.0f, 1f)
@@ -787,8 +801,8 @@ public class RocketAnimations : MonoBehaviour
         main.gravityModifier = 0f;
 
         var emission = trail.emission;
-        emission.rateOverTime = 50f;
-        emission.rateOverDistance = 20f;
+        emission.rateOverTime = 50f * emissionMultiplier; // apply emission multiplier
+        emission.rateOverDistance = 20f * emissionMultiplier; // apply emission multiplier
 
         // shape module for trail spread
         var shape = trail.shape;
@@ -835,7 +849,7 @@ public class RocketAnimations : MonoBehaviour
         {
             renderer.renderMode = ParticleSystemRenderMode.Billboard;
             renderer.sortMode = ParticleSystemSortMode.YoungestInFront;
-            renderer.maxParticleSize = 2.0f;
+            renderer.maxParticleSize = 2.0f * sizeMultiplier; // apply size multiplier
         }
 
         // play the effect
@@ -858,7 +872,39 @@ public class RocketAnimations : MonoBehaviour
         if (particleManager != null)
         {
             // play explosion effect
-            particleManager.PlayEffect("RocketStar", position, 1.0f);
+            ParticleSystem starEffect = particleManager.PlayEffect("RocketStar", position, 1.0f);
+
+            // Apply particle density configuration if effect was created
+            if (starEffect != null)
+            {
+                float emissionMultiplier = animManager.GetRocketStarEmissionMultiplier();
+                float sizeMultiplier = animManager.GetRocketStarSizeMultiplier();
+                float burstMultiplier = animManager.GetParticleBurstMultiplier();
+
+                var main = starEffect.main;
+                main.startSize = new ParticleSystem.MinMaxCurve(
+                    main.startSize.constantMin * sizeMultiplier,
+                    main.startSize.constantMax * sizeMultiplier
+                );
+
+                var emission = starEffect.emission;
+                if (emission.enabled)
+                {
+                    emission.rateOverTime = emission.rateOverTime.constant * emissionMultiplier;
+                    emission.rateOverDistance = emission.rateOverDistance.constant * emissionMultiplier;
+
+                    // Apply burst multiplier if there are any bursts
+                    if (emission.burstCount > 0)
+                    {
+                        for (int i = 0; i < emission.burstCount; i++)
+                        {
+                            ParticleSystem.Burst burst = emission.GetBurst(i);
+                            burst.count = burst.count.constant * burstMultiplier;
+                            emission.SetBurst(i, burst);
+                        }
+                    }
+                }
+            }
         }
 
         // get camera shake parameters
@@ -1052,18 +1098,27 @@ public class RocketAnimations : MonoBehaviour
         {
             if (particleManager != null)
             {
+                // Get particle multipliers from animation manager
+                float starEmissionMultiplier = animManager.GetRocketStarEmissionMultiplier();
+                float smokeEmissionMultiplier = animManager.GetRocketSmokeEmissionMultiplier();
+                float starSizeMultiplier = animManager.GetRocketStarSizeMultiplier();
+                float smokeSizeMultiplier = animManager.GetRocketSmokeSizeMultiplier();
+                float burstMultiplier = animManager.GetParticleBurstMultiplier();
+
                 // create enhanced star effect
                 ParticleSystem starEffect = particleManager.PlayEffect("RocketStar", targetWorldPos, 2.5f);
                 if (starEffect != null)
                 {
                     // configure in one block
                     var main = starEffect.main;
-                    main.startSize = new ParticleSystem.MinMaxCurve(0.6f, 1.0f);
+                    main.startSize = new ParticleSystem.MinMaxCurve(
+                        0.6f * starSizeMultiplier,
+                        1.0f * starSizeMultiplier);
                     main.startLifetime = new ParticleSystem.MinMaxCurve(0.4f, 0.9f);
 
                     var emission = starEffect.emission;
-                    emission.rateOverTime = 70f;
-                    emission.SetBurst(0, new ParticleSystem.Burst(0.0f, 35));
+                    emission.rateOverTime = 70f * starEmissionMultiplier;
+                    emission.SetBurst(0, new ParticleSystem.Burst(0.0f, 35 * burstMultiplier));
                 }
 
                 // create enhanced smoke effect
@@ -1072,12 +1127,14 @@ public class RocketAnimations : MonoBehaviour
                 {
                     // configure in one block
                     var main = smokeEffect.main;
-                    main.startSize = new ParticleSystem.MinMaxCurve(0.5f, 0.9f);
+                    main.startSize = new ParticleSystem.MinMaxCurve(
+                        0.5f * smokeSizeMultiplier,
+                        0.9f * smokeSizeMultiplier);
                     main.startLifetime = new ParticleSystem.MinMaxCurve(0.5f, 1.2f);
 
                     var emission = smokeEffect.emission;
-                    emission.rateOverTime = 60f;
-                    emission.SetBurst(0, new ParticleSystem.Burst(0.0f, 30));
+                    emission.rateOverTime = 60f * smokeEmissionMultiplier;
+                    emission.SetBurst(0, new ParticleSystem.Burst(0.0f, 30 * burstMultiplier));
                 }
             }
 

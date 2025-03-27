@@ -301,15 +301,21 @@ public class PopupController : MonoBehaviour
             instance.backgroundOverlay.color = color;
         }
 
+        // hide close button for win popup
+        if (instance.closeButton != null)
+        {
+            instance.closeButton.gameObject.SetActive(false);
+        }
+
         // show the actual popup after delay
         ShowPopup(
             "Level Completed!",
-            "Next Level",
+            "Main Menu",
             () =>
             {
-                if (instance.debugMode) Debug.Log("next level button action triggered");
+                if (instance.debugMode) Debug.Log("main menu button action triggered");
                 if (GameManager.Instance != null)
-                    GameManager.Instance.StartLevel();
+                    GameManager.Instance.ReturnToMainMenu();
                 else
                     Debug.LogError("gamemanager.instance is null!");
             },
@@ -337,61 +343,8 @@ public class PopupController : MonoBehaviour
     // convenience method for final win popup (no next level button) - combined with static version
     public static void ShowFinalWinPopup(float delay = 1.0f)
     {
-        var instance = EnsureExists();
-        if (instance == null)
-        {
-            Debug.LogError("failed to create or find popupcontroller instance");
-            return;
-        }
-
-        // check if popup is already active
-        if (instance.isPopupActive)
-        {
-            if (instance.debugMode) Debug.Log("final win popup already active, ignoring duplicate call");
-            return;
-        }
-
-        instance.isPopupActive = true;
-
-        if (instance.debugMode) Debug.Log("showfinalwinpopup called with delay: " + delay);
-
-        // block input immediately by showing the overlay
-        if (instance.backgroundOverlay != null)
-        {
-            instance.backgroundOverlay.gameObject.SetActive(true);
-            Color color = instance.backgroundOverlay.color;
-            color.a = 0; // start transparent
-            instance.backgroundOverlay.color = color;
-        }
-
-        // show the actual popup after delay - using main menu button instead of next level
-        ShowPopup(
-            "All Levels Completed!",
-            "Main Menu",
-            () =>
-            {
-                if (instance.debugMode) Debug.Log("main menu button action triggered");
-                instance.OnMainMenuButtonClicked();
-            },
-            delay
-        );
-
-        // play celebration animations and particles if enabled (after delay) - with more particles for final win
-        if (instance.useAnimations)
-        {
-            if (instance.debugMode) Debug.Log("starting win celebration sequence");
-
-            instance.StartCoroutine(instance.DelayedAction(delay, () =>
-            {
-                if (instance.debugMode) Debug.Log("playing final win celebration animation");
-                // use enhanced celebration with extra particles for final win
-                instance.PlayFinalWinCelebrationWithParticles();
-            }));
-        }
-        else
-        {
-            if (instance.debugMode) Debug.Log("animations are disabled, skipping celebration");
-        }
+        // redirect to regular win popup since they now have the same behavior
+        ShowWinPopup(delay);
     }
 
     // convenience method for lose popup - combined with static version
@@ -422,6 +375,12 @@ public class PopupController : MonoBehaviour
             Color color = instance.backgroundOverlay.color;
             color.a = 0; // start transparent
             instance.backgroundOverlay.color = color;
+        }
+
+        // ensure close button is visible for lose popup
+        if (instance.closeButton != null)
+        {
+            instance.closeButton.gameObject.SetActive(true);
         }
 
         ShowPopup(
@@ -815,27 +774,6 @@ public class PopupController : MonoBehaviour
         StartCoroutine(AnimatePopupDisappear());
     }
 
-
-    // called from showfinalwinpopup
-    public void OnMainMenuButtonClicked()
-    {
-        if (debugMode) Debug.Log("onmainmenubuttonclicked");
-
-        // prevent multiple clicks during animation
-        if (isAnimating) return;
-        isAnimating = true;
-
-        StartCoroutine(AnimateButtonClickAndAction(closeButton, () =>
-        {
-            ClosePopup();
-
-            if (GameManager.Instance != null)
-                GameManager.Instance.ReturnToMainMenu();
-            else
-                Debug.LogError("gamemanager.instance is null in onmainmenubuttonclicked!");
-        }));
-    }
-
     // add ondestroy method to clean up singleton reference
     private void OnDestroy()
     {
@@ -881,8 +819,4 @@ public class PopupController : MonoBehaviour
 
         if (debugMode) Debug.Log("Killed all popup tweens");
     }
-
-
-
-
 }

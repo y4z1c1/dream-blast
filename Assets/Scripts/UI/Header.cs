@@ -33,7 +33,7 @@ public class Header : MonoBehaviour
             // animate header from top
             animationManager.AnimateHeaderAppearance(
                 transform,       // header transform
-                1.6f,            // duration
+                1f,            // duration
                 10f,              // offset from top
                 () => { hasAnimated = true; }  // on complete callback
             );
