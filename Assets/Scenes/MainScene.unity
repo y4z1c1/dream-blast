@@ -880,10 +880,15 @@ MonoBehaviour:
   rocketExplosionShakeDuration: 0.2
   comboExplosionShakeIntensity: 0.05
   comboExplosionShakeDuration: 0.3
+  rocketStarEmissionMultiplier: 0.2
+  rocketSmokeEmissionMultiplier: 1
+  rocketStarSizeMultiplier: 0.5
+  rocketSmokeSizeMultiplier: 1.2
+  particleBurstMultiplier: 0.5
   obstacleDamageDuration: 0.2
   obstacleDestroyDuration: 0.3
-  popupShowDuration: 0.3
-  popupHideDuration: 0.2
+  popupShowDuration: 0.2
+  popupHideDuration: 0.15
   buttonPressAnimationDuration: 0.15
   buttonTransitionDuration: 0.5
   buttonAppearDelay: 0.2

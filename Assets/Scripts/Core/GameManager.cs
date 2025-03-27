@@ -126,7 +126,7 @@ public class GameManager : MonoBehaviour
             // use animation manager for appearance animation
             animManager.AnimateLevelButtonAppearance(
                 levelButtonObj.transform,
-                1f,  // duration
+                0.2f,  // duration
                 40f,   // offset from bottom
                 () =>
                 {
