@@ -365,6 +365,8 @@ public class Rocket : GridItem
     // process grid updates after explosion
     private IEnumerator ProcessGridUpdates()
     {
+
+        gridManager.TapEnabled = true;
         if (calledOnMatchProcessed)
             yield break;
 
@@ -445,6 +447,8 @@ public class Rocket : GridItem
     {
         if (isExploding) return;
         isExploding = true;
+
+        gridManager.TapEnabled = false;
 
         Debug.Log("Triggering rocket combination!");
 

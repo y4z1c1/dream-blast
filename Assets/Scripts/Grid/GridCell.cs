@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEditor;
 
 public class GridCell : MonoBehaviour
 {
@@ -10,7 +11,23 @@ public class GridCell : MonoBehaviour
     private GridManager gridManager;
 
     // current item in this cell
+    [SerializeField] // make visible in inspector
     private GridItem currentItem;
+
+    // context menu item to print connected item
+    [ContextMenu("Print Connected Item")]
+    private void PrintConnectedItem()
+    {
+        if (currentItem != null)
+        {
+            Debug.Log($"Cell ({x},{y}) is connected to: {currentItem.name}");
+        }
+        else
+        {
+            Debug.Log($"Cell ({x},{y}) has no connected item");
+        }
+    }
+
 
     // initialize the cell
     public void Initialize(int gridX, int gridY, GridManager manager)

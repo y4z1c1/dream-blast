@@ -62,8 +62,11 @@ public class GridFiller : MonoBehaviour
     // Fill all empty cells in the grid, spawning one row at a time starting from the bottom
     public IEnumerator FillEmptyCells()
     {
+
         if (isFillingInProgress)
             yield break;
+
+        gridManager.TapEnabled = false;
 
         isFillingInProgress = true;
 
@@ -138,6 +141,9 @@ public class GridFiller : MonoBehaviour
         {
             matchFinder.ScanGridForMatches();
         }
+
+        yield return new WaitForSeconds(0.1f);
+        gridManager.TapEnabled = true;
     }
 
     // Fill specific empty cells, spawning one row at a time starting from the bottom

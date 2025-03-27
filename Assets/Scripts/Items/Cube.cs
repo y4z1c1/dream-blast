@@ -37,6 +37,10 @@ public class Cube : GridItem
     private bool hasReachedTarget;
     private bool isAnimating;
 
+    // invalid move animation cooldown
+    private float lastInvalidMoveTime;
+    [SerializeField] private float invalidMoveCooldown = 2f;
+
     private void Awake()
     {
         // cache the sprite renderer component
@@ -216,6 +220,19 @@ public class Cube : GridItem
     public new GridManager GetGridManager()
     {
         return gridManager;
+    }
+
+    // check if the cube can play invalid move animation (not on cooldown)
+    public bool CanPlayInvalidMoveAnimation()
+    {
+        float timeSinceLastPlay = Time.time - lastInvalidMoveTime;
+        return timeSinceLastPlay >= invalidMoveCooldown;
+    }
+
+    // mark invalid move animation as played (update timestamp)
+    public void MarkInvalidMovePlayed()
+    {
+        lastInvalidMoveTime = Time.time;
     }
 
     // override getspriterenderer from base class

@@ -518,6 +518,13 @@ public class MatchFinder : MonoBehaviour
             return;
         }
 
+        // Check if cube is on cooldown
+        if (!cube.CanPlayInvalidMoveAnimation())
+        {
+            DebugLog($"Skipping invalid move animation: cube is on cooldown");
+            return;
+        }
+
         // Skip if no animation manager
         if (animationManager == null)
         {
@@ -526,6 +533,9 @@ public class MatchFinder : MonoBehaviour
         }
 
         DebugLog($"Playing invalid move animation for cube at {lastTapPosition} (duration={invalidMoveDuration}, strength={invalidMoveStrength})");
+
+        // Mark animation as played on the cube
+        cube.MarkInvalidMovePlayed();
 
         // Use configurable animation parameters
         animationManager.AnimateInvalidMove(cube, invalidMoveDuration, invalidMoveStrength);

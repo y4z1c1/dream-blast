@@ -28,6 +28,8 @@ public class FallingController : MonoBehaviour
     {
         Debug.Log("[FallingController] Starting ProcessFalling");
 
+        gridManager.TapEnabled = false;
+
 
         isFalling = true;
         Debug.Log("[FallingController] Set isFalling to true");
@@ -61,6 +63,9 @@ public class FallingController : MonoBehaviour
 
         isFalling = false;
         Debug.Log("[FallingController] Falling complete");
+
+        yield return new WaitForSeconds(0.1f);
+        gridManager.TapEnabled = true;
     }
 
 
