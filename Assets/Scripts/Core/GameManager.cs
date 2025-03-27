@@ -170,12 +170,27 @@ public class GameManager : MonoBehaviour
     // load the level scene
     public void StartLevel()
     {
+        // kill all particles before scene transition
+        ParticleManager particleManager = FindObjectOfType<ParticleManager>();
+        if (particleManager != null)
+        {
+            particleManager.StopAllParticles();
+        }
+
         // load the level scene
         SceneManager.LoadScene(LEVEL_SCENE);
     }
 
+    // reload the current level scene
     public void RestartLevel()
     {
+        // kill all particles before scene transition
+        ParticleManager particleManager = FindObjectOfType<ParticleManager>();
+        if (particleManager != null)
+        {
+            particleManager.StopAllParticles();
+        }
+
         // reload the current level scene
         SceneManager.LoadScene(LEVEL_SCENE);
     }
@@ -183,6 +198,13 @@ public class GameManager : MonoBehaviour
     // return to the main menu
     public void ReturnToMainMenu()
     {
+        // kill all particles before scene transition
+        ParticleManager particleManager = FindObjectOfType<ParticleManager>();
+        if (particleManager != null)
+        {
+            particleManager.StopAllParticles();
+        }
+
         // load the main menu scene
         SceneManager.LoadScene(MAIN_SCENE);
     }
