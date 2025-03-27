@@ -555,11 +555,6 @@ public class LevelController : MonoBehaviour
     private IEnumerator ProcessAfterMatch()
     {
         DebugLog("Processing after match");
-        gridManager.TapEnabled = false;
-
-
-
-
 
         // wait for obstacle destruction and rocket animations to complete
         while (isDelayingFalling || (animationManager != null && animationManager.HasActiveRocketAnimations()))
@@ -581,8 +576,6 @@ public class LevelController : MonoBehaviour
         {
             DebugLogWarning("Warning: fallingController is null");
         }
-        gridManager.TapEnabled = true;
-
 
         // wait until all animations are complete (falling, filling, and rocket)
         while ((fallingController != null && fallingController.HasActiveAnimations()) ||
@@ -604,6 +597,8 @@ public class LevelController : MonoBehaviour
         {
             DebugLogWarning("Warning: matchFinder is null");
         }
+        gridManager.DecrementTapEnabled();
+
     }
 
     private void CheckGameState()
@@ -635,7 +630,7 @@ public class LevelController : MonoBehaviour
 
     {
 
-        gridManager.TapEnabled = false;
+        gridManager.IncrementTapEnabled();
 
         isGameOver = true;
 

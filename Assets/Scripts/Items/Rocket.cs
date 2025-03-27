@@ -57,7 +57,7 @@ public class Rocket : GridItem
     // OnMouseDown handler for clicking the rocket
     private void OnMouseDown()
     {
-        if (!isExploding)
+        if (!isExploding && !isFalling && gridManager.TapEnabled)
         {
             Debug.Log($"Rocket clicked at position {GetGridPosition()}");
             OnTap();
@@ -366,7 +366,7 @@ public class Rocket : GridItem
     private IEnumerator ProcessGridUpdates()
     {
 
-        gridManager.TapEnabled = true;
+        gridManager.DecrementTapEnabled();
         if (calledOnMatchProcessed)
             yield break;
 
@@ -448,7 +448,7 @@ public class Rocket : GridItem
         if (isExploding) return;
         isExploding = true;
 
-        gridManager.TapEnabled = false;
+        gridManager.IncrementTapEnabled();
 
         Debug.Log("Triggering rocket combination!");
 

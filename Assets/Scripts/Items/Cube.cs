@@ -126,7 +126,7 @@ public class Cube : GridItem
     // override the ontap method from griditem
     public override void OnTap()
     {
-        if (matchFinder == null)
+        if (matchFinder == null || isFalling)
         {
             // try to find matchfinder if not set
             matchFinder = FindFirstObjectByType<MatchFinder>();

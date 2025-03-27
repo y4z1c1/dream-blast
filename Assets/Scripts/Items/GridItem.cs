@@ -10,6 +10,14 @@ public abstract class GridItem : MonoBehaviour
     // reference to grid manager
     protected GridManager gridManager;
 
+    protected bool isFalling = false;
+
+    public bool IsFalling { get => isFalling; }
+
+    public void SetIsFalling(bool value)
+    {
+        isFalling = value;
+    }
     // get sprite renderer in derived classes
     protected virtual SpriteRenderer GetSpriteRenderer()
     {

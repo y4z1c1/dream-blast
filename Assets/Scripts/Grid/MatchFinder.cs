@@ -245,6 +245,8 @@ public class MatchFinder : MonoBehaviour
     // scan the entire grid for matches and store them
     public void ScanGridForMatches()
     {
+        gridManager.DecrementTapEnabled();
+
         // clear previous matches
         potentialMatches.Clear();
 

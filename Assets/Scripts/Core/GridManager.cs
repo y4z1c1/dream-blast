@@ -27,7 +27,7 @@ public class GridManager : MonoBehaviour
     private Transform gridCellsContainer;
 
     // game over flag
-    private bool tapEnabled = true;
+    private int tapEnabled = 0;
 
     // animation parameters
     private Vector3 initialGridPosition;
@@ -42,7 +42,27 @@ public class GridManager : MonoBehaviour
     private AnimationManager animationManager;
 
     // set and get game over
-    public bool TapEnabled { get => tapEnabled; set => tapEnabled = value; }
+    // get tap enabled state
+    public bool TapEnabled { get => tapEnabled == 0; }
+
+    // increment tap enabled counter
+    public void IncrementTapEnabled()
+    {
+        // increment tap enabled counter
+        tapEnabled++;
+        Debug.Log($"[GridManager] ⬆️ Incremented tapEnabled to {tapEnabled}");
+    }
+
+    // decrement tap enabled counter 
+    public void DecrementTapEnabled()
+    {
+        // decrement tap enabled counter
+        if (tapEnabled > 0)
+        {
+            tapEnabled--;
+            Debug.Log($"[GridManager] ⬇️ Decremented tapEnabled to {tapEnabled}");
+        }
+    }
 
     private void Awake()
     {
@@ -424,7 +444,7 @@ public class GridManager : MonoBehaviour
     public void AnimateGridAppearance()
     {
         // disable tap until animation completes
-        tapEnabled = false;
+        IncrementTapEnabled();
 
         // use animation manager if available
         if (animationManager != null)
@@ -434,7 +454,7 @@ public class GridManager : MonoBehaviour
                 gridBackground ? gridBackground.transform : null,
                 0.5f,  // duration
                 40f,   // offset
-                () => { tapEnabled = true; }  // on complete callback
+                () => { DecrementTapEnabled(); }  // on complete callback
             );
         }
         else
@@ -494,7 +514,7 @@ public class GridManager : MonoBehaviour
             if (progress >= 1f)
             {
                 isAnimatingAppearance = false;
-                tapEnabled = true;
+                DecrementTapEnabled();
             }
         }
     }

@@ -28,7 +28,7 @@ public class FallingController : MonoBehaviour
     {
         Debug.Log("[FallingController] Starting ProcessFalling");
 
-        gridManager.TapEnabled = false;
+        gridManager.IncrementTapEnabled();
 
 
         isFalling = true;
@@ -56,6 +56,9 @@ public class FallingController : MonoBehaviour
         Debug.Log($"[FallingController] Found empty spaces in {emptySpaces.Count} columns");
         OnEmptySpacesReady?.Invoke(emptySpaces);
 
+        gridManager.DecrementTapEnabled();
+
+
         // wait for all animations to complete
         Debug.Log("[FallingController] Waiting for animations to complete");
         yield return StartCoroutine(WaitForAnimationsToComplete());
@@ -65,7 +68,6 @@ public class FallingController : MonoBehaviour
         Debug.Log("[FallingController] Falling complete");
 
         yield return new WaitForSeconds(0.1f);
-        gridManager.TapEnabled = true;
     }
 
 
@@ -126,6 +128,8 @@ public class FallingController : MonoBehaviour
                 if (itemToMove == null)
                     continue;
 
+                itemToMove.SetIsFalling(true);
+
                 // update grid data immediately for correct simulation
                 sourceCell.ClearItem();
                 targetCell.SetItem(itemToMove);
@@ -163,6 +167,8 @@ public class FallingController : MonoBehaviour
                                 {
                                     cube.SetHasReachedTarget(true);
                                 }
+
+                                item.SetIsFalling(false);
                             }
                         }
                     );
@@ -179,6 +185,7 @@ public class FallingController : MonoBehaviour
                         {
                             cube.SetHasReachedTarget(true);
                         }
+                        batchItems[i].SetIsFalling(false);
                     }
 
                     activeAnimationCount--;

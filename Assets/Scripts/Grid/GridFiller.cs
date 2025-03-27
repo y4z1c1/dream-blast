@@ -66,7 +66,7 @@ public class GridFiller : MonoBehaviour
         if (isFillingInProgress)
             yield break;
 
-        gridManager.TapEnabled = false;
+        gridManager.IncrementTapEnabled();
 
         isFillingInProgress = true;
 
@@ -135,6 +135,8 @@ public class GridFiller : MonoBehaviour
         }
 
         isFillingInProgress = false;
+        gridManager.DecrementTapEnabled();
+
 
         // Inform MatchFinder that grid has been filled
         if (matchFinder != null)
@@ -143,7 +145,6 @@ public class GridFiller : MonoBehaviour
         }
 
         yield return new WaitForSeconds(0.1f);
-        gridManager.TapEnabled = true;
     }
 
     // Fill specific empty cells, spawning one row at a time starting from the bottom

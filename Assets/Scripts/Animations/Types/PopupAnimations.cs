@@ -514,7 +514,7 @@ public static class PopupAnimations
 
         // get original scale - use safe method
         Vector3 originalScale = GetSafeOriginalScale(button.transform);
-        Vector3 pressedScale = originalScale * 0.8f;
+        Vector3 pressedScale = originalScale * 0.9f;
         Vector3 releasedScale = originalScale * 1.05f;
 
         if (IsDebugEnabled()) Debug.Log($"[PopupAnimations] Starting button click animation for: {button.name}");
