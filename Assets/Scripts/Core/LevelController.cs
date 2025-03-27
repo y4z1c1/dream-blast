@@ -876,6 +876,14 @@ public class LevelController : MonoBehaviour
 
     private void Update()
     {
+        // return to main menu when Q key is pressed (works in any mode)
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            Debug.Log("Returning to main menu via Q key");
+            ReturnToMainMenu();
+            return;
+        }
+
         // skip debug keys if not in debug mode
         if (!debugMode) return;
 

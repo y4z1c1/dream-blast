@@ -746,6 +746,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1884381941}
   - component: {fileID: 1884381940}
+  - component: {fileID: 1884381942}
   m_Layer: 0
   m_Name: ParticleManager
   m_TagString: Untagged
@@ -834,6 +835,61 @@ Transform:
   - {fileID: 1962354345}
   m_Father: {fileID: 1912470838}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1884381942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884381939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28d3b2710a8fa49c59b89d26ee77702c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  starParticlePrefab: {fileID: 4538241078722809841, guid: 95eb67a0779f143a88627935c579672e, type: 3}
+  additiveStarParticlePrefab: {fileID: 7249635218541063812, guid: 442c4bc300ae44baf8bbc894af886452, type: 3}
+  particlesPerBurst: 30
+  burstRadius: 20
+  minParticleSize: 0.2
+  maxParticleSize: 0.6
+  minLifetime: 1
+  maxLifetime: 3
+  gravity: 20
+  initialVelocity: 50
+  particleColors:
+  - r: 1
+    g: 0.3
+    b: 0.3
+    a: 1
+  - r: 0.3
+    g: 1
+    b: 0.3
+    a: 1
+  - r: 0.3
+    g: 0.3
+    b: 1
+    a: 1
+  - r: 1
+    g: 1
+    b: 0.3
+    a: 1
+  - r: 1
+    g: 0.3
+    b: 1
+    a: 1
+  - r: 0.3
+    g: 1
+    b: 1
+    a: 1
+  - r: 1
+    g: 0.6
+    b: 0.3
+    a: 1
+  systemLifetime: 0
+  maxSystemLifetime: 0
+  isActive: 0
+  canvasTransform: {fileID: 0}
 --- !u!1 &1912470835
 GameObject:
   m_ObjectHideFlags: 0

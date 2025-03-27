@@ -49,6 +49,20 @@ public class GameManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    private void Update()
+    {
+        // debug level control with number keys
+        for (int i = 1; i <= 9; i++)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i))
+            {
+                SetLevel(i);
+                Debug.Log("Level set to: " + i);
+                UpdateLevelButtonText();
+            }
+        }
+    }
+
     // called when a scene is loaded
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
