@@ -861,9 +861,9 @@ MonoBehaviour:
   buttonPressAnimationDuration: 0.15
   buttonTransitionDuration: 0.5
   buttonAppearDelay: 0.2
-  fallingGravity: 160
+  fallingGravity: 100
   fallingBounceIntensity: 0.1
-  spawnGravity: 160
+  spawnGravity: 100
   spawnBounceIntensity: 0.2
   spawnFadeDuration: 0.1
   damageFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
@@ -1069,6 +1069,10 @@ PrefabInstance:
       propertyPath: levelButtonObj
       value: 
       objectReference: {fileID: 1540839869}
+    - target: {fileID: 7018298631088940679, guid: 8c7a608adb7cb406a88ccdd81e54e191, type: 3}
+      propertyPath: debugLevelToSet
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7018298631088940679, guid: 8c7a608adb7cb406a88ccdd81e54e191, type: 3}
       propertyPath: levelButtonText
       value: 

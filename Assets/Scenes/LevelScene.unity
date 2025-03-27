@@ -3245,10 +3245,10 @@ MonoBehaviour:
     countText: {fileID: 482441173}
     counterObject: {fileID: 901130759}
     checkmarkObject: {fileID: 2008132114}
-  scaleTwoOrLess: 0.04
-  scaleThree: 0.03
-  paddingTwoOrLess: 30
-  paddingThree: 30
+  scaleTwoOrLess: 0.035
+  scaleThree: 0.025
+  paddingTwoOrLess: 27
+  paddingThree: 26
   gridLayout: {fileID: 2066754657}
   levelController: {fileID: 33393549}
 --- !u!114 &2066754657
@@ -3271,8 +3271,8 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 1.36, y: 6.34}
-  m_Spacing: {x: 7.1, y: 1}
+  m_CellSize: {x: 1.5, y: 6.34}
+  m_Spacing: {x: 6.5, y: 1}
   m_Constraint: 0
   m_ConstraintCount: 2
 --- !u!1 &2101737430
