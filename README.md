@@ -8,7 +8,6 @@ This repository contains my implementation of the Dream Games Software Engineeri
 <img width="275" alt="image-13" src="https://github.com/user-attachments/assets/409a7154-7885-498e-a1d4-cfd030dff9ac" />
 </p>
 
-
 ## Development Documentation
 
 For a comprehensive overview of the implementation process, project structure, and technical details, please see the [Implementation Documentation](https://github.com/y4z1c1/dream-blast/blob/main/report.pdf).
