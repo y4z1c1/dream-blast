@@ -264,12 +264,6 @@ public static class CubeAnimations
 
         if (IsDebugEnabled()) Debug.Log($"[CubeAnimations] Starting rocket combine animation with {cubeTransforms.Count} cubes");
 
-        // play subtle particle effects at target position
-        if (particleManager != null)
-        {
-            particleManager.PlayEffect("RocketStar", targetWorldPos, 0.05f);
-            particleManager.PlayEffect("RocketSmoke", targetWorldPos, 0.05f);
-        }
 
         // animation settings
         float duration = animManager.GetRocketCreateDuration();

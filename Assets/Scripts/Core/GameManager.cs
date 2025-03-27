@@ -140,8 +140,8 @@ public class GameManager : MonoBehaviour
             // use animation manager for appearance animation
             animManager.AnimateLevelButtonAppearance(
                 levelButtonObj.transform,
-                0.2f,  // duration
-                40f,   // offset from bottom
+                0.6f,  // duration
+                400f,   // offset from bottom
                 () =>
                 {
                     // re-enable button interaction after animation completes
@@ -266,14 +266,25 @@ public class GameManager : MonoBehaviour
             levelButton.interactable = false;
         }
 
-
-
-        // Only play the click animation, no move out animation
+        // First play the click animation
         PlayLevelButtonClickAnimation(() =>
         {
-
-            // load the level scene
-            StartLevel();
+            // Try to get animation manager
+            AnimationManager animManager = AnimationManager.Instance;
+            if (animManager != null)
+            {
+                // Play exit animation before loading level
+                animManager.AnimateLevelButtonExit(levelButtonObj.transform, 0.8f, 400f, () =>
+                {
+                    // Load the level scene after animation completes
+                    StartLevel();
+                });
+            }
+            else
+            {
+                // If no animation manager, just load the level
+                StartLevel();
+            }
         });
     }
 

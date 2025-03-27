@@ -895,4 +895,59 @@ public static class GeneralAnimations
             onComplete?.Invoke();
         });
     }
+
+    // animate level button exiting to bottom with smooth easing (inverse of grid appearance)
+    public static void PlayLevelButtonExitAnimation(Transform buttonTransform, float duration = 0.5f, float offset = 40f, System.Action onComplete = null)
+    {
+        if (!InitializeReferences())
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        // validate parameters
+        if (buttonTransform == null)
+        {
+            if (IsDebugEnabled()) Debug.LogWarning("[GeneralAnimations] Button transform is null for exit animation");
+            onComplete?.Invoke();
+            return;
+        }
+
+        // apply animation speed multiplier
+        float speedMultiplier = animManager.GetAnimationSpeed();
+        float adjustedDuration = duration / speedMultiplier;
+
+        if (IsDebugEnabled()) Debug.Log("[GeneralAnimations] Starting level button exit animation");
+
+        // kill any existing animations on the button
+        DOTween.Kill(buttonTransform);
+
+        // store initial position
+        Vector3 startPosition = buttonTransform.position;
+        Vector3 targetPosition = startPosition + new Vector3(0f, -offset, 0f); // offset downward
+
+        // create animation sequence
+        Sequence buttonSequence = DOTween.Sequence();
+
+        // animate position with easing (inverse of grid appearance)
+        buttonSequence.Append(
+            buttonTransform.DOMove(targetPosition, adjustedDuration)
+            .SetEase(Ease.InBack, 1.05f) // inverse of OutBack for exit
+        );
+
+        // handle completion
+        buttonSequence.OnComplete(() =>
+        {
+            if (IsDebugEnabled()) Debug.Log("[GeneralAnimations] Level button exit animation completed");
+
+            // invoke completion callback
+            onComplete?.Invoke();
+        });
+
+        // handle kill case
+        buttonSequence.OnKill(() =>
+        {
+            onComplete?.Invoke();
+        });
+    }
 }

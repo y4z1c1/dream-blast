@@ -1048,30 +1048,49 @@ public class AnimationManager : MonoBehaviour
     // animate level button appearing from bottom
     public void AnimateLevelButtonAppearance(Transform buttonTransform, float duration = 0.6f, float offset = 8f, System.Action onComplete = null)
     {
-        // early validation
-        if (buttonTransform == null)
+        // Only run if UI animations are enabled
+        if (!AreUIAnimationsEnabled())
         {
-            if (debugMode) Debug.LogWarning("[AnimationManager] Attempted to animate level button appearance with null transform");
             onComplete?.Invoke();
             return;
         }
 
-        if (!AreUIAnimationsEnabled())
+        // validate parameters
+        if (buttonTransform == null)
         {
-            if (debugMode) Debug.Log("[AnimationManager] UI animations disabled, showing level button immediately");
-
-            // ensure button is visible even without animation
-            buttonTransform.gameObject.SetActive(true);
-
-            // invoke callback
+            if (debugMode) Debug.LogWarning("[AnimationManager] Button transform is null for appearance animation");
             onComplete?.Invoke();
             return;
         }
 
         if (debugMode) Debug.Log("[AnimationManager] Starting level button appearance animation");
 
-        // delegate to GeneralAnimations
+        // use GeneralAnimations method
         GeneralAnimations.PlayLevelButtonAppearAnimation(buttonTransform, duration, offset, onComplete);
+    }
+
+    // animate the level button exiting downwards
+    public void AnimateLevelButtonExit(Transform buttonTransform, float duration = 0.5f, float offset = 100f, System.Action onComplete = null)
+    {
+        // Only run if UI animations are enabled
+        if (!AreUIAnimationsEnabled())
+        {
+            onComplete?.Invoke();
+            return;
+        }
+
+        // validate parameters
+        if (buttonTransform == null)
+        {
+            if (debugMode) Debug.LogWarning("[AnimationManager] Button transform is null for exit animation");
+            onComplete?.Invoke();
+            return;
+        }
+
+        if (debugMode) Debug.Log("[AnimationManager] Starting level button exit animation");
+
+        // use GeneralAnimations method
+        GeneralAnimations.PlayLevelButtonExitAnimation(buttonTransform, duration, offset, onComplete);
     }
 
     // animate cube shake for invalid move
