@@ -898,5 +898,14 @@ public class LevelController : MonoBehaviour
             DebugLog("Restarting level via R key");
             OnRetryButtonClicked();
         }
+
+        // print grid contents when space key is pressed
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            DebugLog("Printing grid contents");
+            gridManager.PrintGridContents();
+        }
+
+
     }
 }

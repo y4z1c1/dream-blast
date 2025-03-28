@@ -352,6 +352,8 @@ public class GridFiller : MonoBehaviour
             // Set cube in the cell
             cell.SetItem(cube);
 
+            cube.SetCanInteract(false);
+
             // Animate the cube falling to its target position using animation manager
             animateSpawnedCube(cube, startPosition, cellPosition);
 

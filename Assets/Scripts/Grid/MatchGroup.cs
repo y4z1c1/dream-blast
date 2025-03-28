@@ -45,6 +45,16 @@ public class MatchGroup
     // process destruction with animation - using combine effect for rocket matches
     public List<Vector2Int> ProcessDestruction(bool createRocket = false)
     {
+        // check if any cube in the group cannot interact
+        foreach (Cube cube in MatchedCubes)
+        {
+            if (cube != null && !cube.CanInteract)
+            {
+                Debug.LogWarning($"Cannot process destruction - cube at {cube.GetGridPosition()} cannot interact");
+                return new List<Vector2Int>();
+            }
+        }
+
         // remember the clicked position for rocket creation
         Vector2Int rocketPosition = ClickedPosition;
 
@@ -157,6 +167,5 @@ public class MatchGroup
             }
         }
     }
-
 
 }

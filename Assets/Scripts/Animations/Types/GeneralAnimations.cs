@@ -299,6 +299,8 @@ public static class GeneralAnimations
             return;
         }
 
+
+
         // get physics simulation parameters from animation manager
         float gravity = animManager.GetFallingGravity();
         float bounceIntensity = animManager.GetFallingBounceIntensity();
@@ -436,6 +438,7 @@ public static class GeneralAnimations
                     }
 
 
+
                     // decrement active count and check if all done
                     activeCount--;
 
@@ -498,8 +501,7 @@ public static class GeneralAnimations
         Transform cubeTransform = cube.transform;
         GameObject cubeObject = cube.gameObject;
 
-        // set can interact to false
-        cube.SetCanInteract(false);
+
 
         // get renderers for fade-in effect
         Renderer[] renderers = cube.GetComponentsInChildren<Renderer>();
@@ -608,7 +610,6 @@ public static class GeneralAnimations
             if (cubeTransform != null)
             {
                 cubeTransform.position = targetPosition; // ensure final position
-                cube.SetCanInteract(true);
             }
 
             if (IsDebugEnabled()) Debug.Log($"[GeneralAnimations] Completed cube spawn animation for {(cubeObject != null ? cubeObject.name : "destroyed cube")}");

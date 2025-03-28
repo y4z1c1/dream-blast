@@ -68,7 +68,8 @@ public class Cube : GridItem
 
     private void OnMouseDown()
     {
-        if (!gridManager.TapEnabled || !canInteract)
+        Debug.Log("Cube at " + GetGridPosition() + " OnMouseDown");
+        if (!canInteract || !gridManager.TapEnabled)
         {
             Debug.Log("Cube at " + GetGridPosition() + " tap disabled - not processing tap");
             return;
@@ -237,5 +238,23 @@ public class Cube : GridItem
     }
 
 
+    [ContextMenu("Print All Attributes")]
+    public void PrintAllAttributes()
+    {
+        // get grid position
+        Vector2Int pos = GetGridPosition();
 
+        // print all attributes
+        Debug.Log($"Cube Attributes at position ({pos.x}, {pos.y}):\n" +
+                  $"Color: {color}\n" +
+                  $"Can Interact: {canInteract}\n" +
+                  $"Is Rocket Indicator Shown: {isRocketIndicatorShown}\n" +
+                  $"Last Invalid Move Time: {lastInvalidMoveTime}\n" +
+                  $"Invalid Move Cooldown: {invalidMoveCooldown}\n" +
+                  $"Glow Animation Duration: {glowAnimDuration}\n" +
+                  $"Glow Intensity: {glowIntensity}\n" +
+                  $"Has Grid Manager: {gridManager != null}\n" +
+                  $"Has Match Finder: {matchFinder != null}\n" +
+                  $"Has Sprite Renderer: {spriteRenderer != null}");
+    }
 }

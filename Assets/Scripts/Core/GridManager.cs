@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Text;
 
 public class GridManager : MonoBehaviour
 {
@@ -517,5 +518,74 @@ public class GridManager : MonoBehaviour
                 DecrementTapEnabled();
             }
         }
+    }
+
+    public void PrintGridContents()
+    {
+        StringBuilder gridDisplay = new StringBuilder();
+
+        // Create top border
+        string topBorder = "┌";
+        for (int x = 0; x < gridWidth; x++)
+        {
+            topBorder += "────────────";
+            if (x < gridWidth - 1)
+                topBorder += "┬";
+        }
+        topBorder += "┐";
+        gridDisplay.AppendLine(topBorder);
+
+        // Display each row
+        for (int y = gridHeight - 1; y >= 0; y--)
+        {
+            // Create content row
+            StringBuilder rowContent = new StringBuilder("│");
+            for (int x = 0; x < gridWidth; x++)
+            {
+                GridCell cell = grid[x, y];
+                string cellContent;
+
+                if (cell == null)
+                {
+                    cellContent = "   NULL   ";
+                }
+                else
+                {
+                    GridItem item = cell.GetItem();
+                    cellContent = item != null ? $" {item.name.PadRight(8)} " : "   empty   ";
+                }
+
+                rowContent.Append(cellContent).Append("│");
+            }
+            gridDisplay.AppendLine(rowContent.ToString());
+
+            // Add row separator (except after the last row)
+            if (y < gridHeight - 1)
+            {
+                string rowSeparator = "├";
+                for (int x = 0; x < gridWidth; x++)
+                {
+                    rowSeparator += "────────────";
+                    if (x < gridWidth - 1)
+                        rowSeparator += "┼";
+                }
+                rowSeparator += "┤";
+                gridDisplay.AppendLine(rowSeparator);
+            }
+        }
+
+        // Create bottom border
+        string bottomBorder = "└";
+        for (int x = 0; x < gridWidth; x++)
+        {
+            bottomBorder += "────────────";
+            if (x < gridWidth - 1)
+                bottomBorder += "┴";
+        }
+        bottomBorder += "┘";
+        gridDisplay.AppendLine(bottomBorder);
+
+        // Output the entire grid at once
+        Debug.Log(gridDisplay.ToString());
     }
 }

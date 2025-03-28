@@ -28,7 +28,7 @@ public class MatchFinder : MonoBehaviour
     [SerializeField] private float invalidMoveStrength = 0.1f;
 
     [Header("Debug Settings")]
-    [SerializeField] private bool debugMode = false;
+    [SerializeField] private bool debugMode = true;
 
     // store potential matches
     private List<MatchGroup> potentialMatches = new List<MatchGroup>();
@@ -304,6 +304,7 @@ public class MatchFinder : MonoBehaviour
         }
 
         Debug.Log($"Found {potentialMatches.Count} potential matches, including {potentialMatches.Count(m => m.IsRocketMatch)} rocket matches");
+
     }
 
     // Update rocket indicators for a match group based on its size

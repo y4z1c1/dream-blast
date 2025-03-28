@@ -160,12 +160,12 @@ public class FallingController : MonoBehaviour
                             // callback when batch animation completes
                             activeAnimationCount--;
 
-                            // mark cubes as ready after animation completes
+                            // mark items as ready after animation completes
                             foreach (var item in batchItems)
                             {
-                                if (item is Cube cube)
+                                if (item != null)
                                 {
-                                    cube.SetCanInteract(true);
+                                    item.SetCanInteract(true);
                                 }
                             }
                         }
@@ -178,10 +178,10 @@ public class FallingController : MonoBehaviour
                     {
                         batchItems[i].transform.position = endPositions[i];
 
-                        // mark cube as ready immediately
-                        if (batchItems[i] is Cube cube)
+                        // mark item as ready immediately
+                        if (batchItems[i] != null)
                         {
-                            cube.SetCanInteract(true);
+                            batchItems[i].SetCanInteract(true);
                         }
                     }
 

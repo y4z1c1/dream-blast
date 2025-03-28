@@ -62,6 +62,11 @@ public class Rocket : GridItem
             Debug.Log($"Rocket clicked at position {GetGridPosition()}");
             OnTap();
         }
+        else
+        {
+            Debug.Log($"Rocket at position {GetGridPosition()} is exploding or cannot interact");
+            Debug.Log($"isExploding: {isExploding}, canInteract: {canInteract}, gridManager.TapEnabled: {gridManager.TapEnabled}");
+        }
     }
 
     // set the rocket direction
@@ -123,10 +128,6 @@ public class Rocket : GridItem
         }
 
 
-        if (!gridManager.TapEnabled)
-        {
-            return;
-        }
 
         // first check for rocket combinations
         if (!CheckForRocketCombination())
@@ -360,11 +361,22 @@ public class Rocket : GridItem
         if (!wasTriggeredByAnotherRocket)
             StartCoroutine(ProcessGridUpdates());
 
+        else
+        {
+            // destroy this rocket if it hasn't been destroyed yet
+            if (gameObject != null)
+                Destroy(gameObject);
+        }
+
     }
 
     // process grid updates after explosion
     private IEnumerator ProcessGridUpdates()
     {
+
+        // destroy this rocket if it hasn't been destroyed yet
+        if (gameObject != null)
+            Destroy(gameObject);
 
         gridManager.DecrementTapEnabled();
         if (calledOnMatchProcessed)
@@ -386,9 +398,7 @@ public class Rocket : GridItem
             levelController.OnMatchProcessed(1);
         }
 
-        // destroy this rocket if it hasn't been destroyed yet
-        if (gameObject != null)
-            Destroy(gameObject);
+
 
         yield return null;
     }
@@ -658,5 +668,19 @@ public class Rocket : GridItem
             }
         }
         return count;
+    }
+
+    [ContextMenu("Print All Attributes")]
+    public void PrintAllAttributes()
+    {
+        // get grid position
+        Vector2Int pos = GetGridPosition();
+
+        // print all attributes
+        Debug.Log($"Rocket Attributes at position ({pos.x}, {pos.y}):\n" +
+                  $"Can Interact: {canInteract}\n" +
+                  $"Has Grid Manager: {gridManager != null}\n" +
+                  $"Has Match Finder: {matchFinder != null}\n" +
+                  $"Has Sprite Renderer: {spriteRenderer != null}");
     }
 }
