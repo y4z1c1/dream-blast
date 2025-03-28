@@ -56,15 +56,23 @@ public class VaseObstacle : Obstacle
     // vase takes damage from matches
     public override bool TakeDamageFromMatch()
     {
-        Debug.Log("Vase taking damage from match");
-        return TakeDamage(1);
+        if (canInteract)
+        {
+            Debug.Log("Vase taking damage from match");
+            return TakeDamage(1);
+        }
+        return false;
     }
 
     // vase takes damage from rockets
     public override bool TakeDamageFromRocket()
     {
-        Debug.Log("Vase taking damage from rocket");
-        return TakeDamage(1);
+        if (canInteract)
+        {
+            Debug.Log("Vase taking damage from rocket");
+            return TakeDamage(1);
+        }
+        return false;
     }
 
     // override to provide vase-specific visual damage feedback

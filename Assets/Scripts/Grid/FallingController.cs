@@ -63,8 +63,6 @@ public class FallingController : MonoBehaviour
         Debug.Log("[FallingController] Falling complete");
         yield return new WaitForSeconds(0.1f);
 
-
-
     }
 
 
@@ -81,6 +79,23 @@ public class FallingController : MonoBehaviour
         // skip if no positions to process
         if (fallingPositions.Count == 0)
             return;
+
+        // check if there are any vase obstacles in the falling positions
+        bool hasVaseObstacle = false;
+        foreach (var position in fallingPositions)
+        {
+            Vector2Int currentPos = position.Key;
+            GridCell sourceCell = gridManager.GetCell(currentPos.x, currentPos.y);
+            if (sourceCell != null && !sourceCell.IsEmpty())
+            {
+                GridItem item = sourceCell.GetItem();
+                if (item is VaseObstacle)
+                {
+                    hasVaseObstacle = true;
+                    break;
+                }
+            }
+        }
 
         // organize falling items by target row (y-coordinate)
         Dictionary<int, List<KeyValuePair<Vector2Int, Vector2Int>>> rowBatches = new Dictionary<int, List<KeyValuePair<Vector2Int, Vector2Int>>>();
@@ -185,6 +200,8 @@ public class FallingController : MonoBehaviour
                     activeAnimationCount--;
                 }
             }
+
+
         }
     }
 

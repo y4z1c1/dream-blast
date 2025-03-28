@@ -618,6 +618,8 @@ public static class GeneralAnimations
             return;
         }
 
+
+
         // apply animation speed multiplier
         float speedMultiplier = animManager.GetAnimationSpeed();
         float adjustedDuration = duration / speedMultiplier;

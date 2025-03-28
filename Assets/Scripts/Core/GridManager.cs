@@ -14,6 +14,12 @@ public class GridManager : MonoBehaviour
     [SerializeField] private SpriteRenderer gridBackgroundPrefab;
     private SpriteRenderer gridBackground;
 
+    // masking
+    [Header("Masking")]
+    [SerializeField] private GameObject maskPrefab;
+    [SerializeField] private bool useSpriteMask = true;
+    private GridMask gridMask;
+
     // cell prefab and size
     [SerializeField] private GameObject cellPrefab;
     [SerializeField] private float cellSize = 1.0f;
@@ -108,6 +114,9 @@ public class GridManager : MonoBehaviour
 
         // create background first
         CreateGridBackground();
+
+        // create the mask
+        CreateGridMask();
 
         // create a container for grid cells
         GameObject cellsContainer = new GameObject("GridCellsContainer");
@@ -207,9 +216,6 @@ public class GridManager : MonoBehaviour
         // hide background initially
         gridBackground.gameObject.SetActive(false);
 
-
-
-
         // if using 9-slice scaling, set the size directly
         if (gridBackgroundPrefab.drawMode == SpriteDrawMode.Sliced)
         {
@@ -235,14 +241,45 @@ public class GridManager : MonoBehaviour
         gridBackground.name = "GridBackground";
     }
 
+    // creates the mask for the grid
+    private void CreateGridMask()
+    {
+        // only create if masking is enabled
+        if (!useSpriteMask || maskPrefab == null)
+            return;
+
+        // clear any existing masks
+        Transform existingMask = transform.Find("GridMask");
+        if (existingMask != null)
+            Destroy(existingMask.gameObject);
+
+        // create the new mask
+        GameObject maskObject = Instantiate(maskPrefab, transform.position, Quaternion.identity, transform);
+        maskObject.name = "GridMask";
+
+        // get and initialize the GridMask component
+        gridMask = maskObject.GetComponent<GridMask>();
+        if (gridMask == null)
+            gridMask = maskObject.AddComponent<GridMask>();
+
+        // initialize with reference to the grid background
+        Transform bgTransform = transform.Find("GridBackground");
+        if (bgTransform != null)
+        {
+            gridMask.Initialize(bgTransform);
+        }
+        else
+        {
+            Debug.LogError("[GridManager] Could not find GridBackground for masking");
+        }
+    }
+
     // get a cell at the specified grid coordinates
     public GridCell GetCell(int x, int y)
     {
-
         // check if coordinates are within bounds
         if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight)
         {
-
             return grid[x, y];
         }
 
@@ -401,6 +438,14 @@ public class GridManager : MonoBehaviour
             gridCellsContainer = null;
         }
 
+        // destroy the mask if it exists
+        Transform existingMask = transform.Find("GridMask");
+        if (existingMask != null)
+        {
+            Destroy(existingMask.gameObject);
+            gridMask = null;
+        }
+
         // Don't destroy the background here, it will be handled in CreateGridBackground
 
         // clear any other child objects except don't try to destroy the background here
@@ -472,48 +517,41 @@ public class GridManager : MonoBehaviour
         // disable tap until animation completes
         IncrementTapEnabled();
 
-        // use animation manager if available
-        if (animationManager != null)
+        // make sure the mask exists and is active
+        if (gridMask != null && useSpriteMask)
         {
-            animationManager.AnimateGridAppearance(
-                gridCellsContainer,
-                gridBackground ? gridBackground.transform : null,
-                0.5f,  // duration
-                40f,   // offset
-                () => { DecrementTapEnabled(); }  // on complete callback
-            );
+            gridMask.gameObject.SetActive(true);
         }
-        else
+
+        // Create a completion callback that resets the mask scale and decrements tapEnabled
+        System.Action onComplete = () =>
         {
-            // fallback to direct animation if animation manager not found
-            // store target position (current position)
-            targetGridPosition = gridCellsContainer.position;
+            Debug.Log("[GridManager] Animation complete callback triggered");
 
-            // set initial position for cells (offset downward)
-            initialGridPosition = targetGridPosition + new Vector3(0f, -10f, 0f);
-            gridCellsContainer.position = initialGridPosition;
-
-            // make grid cells visible
-            gridCellsContainer.gameObject.SetActive(true);
-
-            // set up background for animation
-            if (gridBackground != null)
+            // Reset mask scale when animation completes
+            if (gridMask != null && useSpriteMask)
             {
-                // store background target position
-                targetBgPosition = gridBackground.transform.position;
-
-                // set initial background position (offset downward)
-                initialBgPosition = targetBgPosition + new Vector3(0f, -10f, 0f);
-                gridBackground.transform.position = initialBgPosition;
-
-                // make background visible
-                gridBackground.gameObject.SetActive(true);
+                Debug.Log("[GridManager] Calling ResetToNormalScale on GridMask");
+                gridMask.ResetToNormalScale();
+            }
+            else
+            {
+                Debug.Log("[GridManager] Cannot reset mask scale: mask is null or disabled");
             }
 
-            // start animation
-            isAnimatingAppearance = true;
-            animationTimer = 0f;
-        }
+            // Decrement tapEnabled counter
+            Debug.Log("[GridManager] Animation complete, decrementing tapEnabled");
+            DecrementTapEnabled();
+        };
+
+        // call animation manager with our modified callback
+        animationManager.AnimateGridAppearance(
+            gridCellsContainer,
+            gridBackground ? gridBackground.transform : null,
+            0.5f,  // duration
+            40f,   // offset
+            onComplete  // our modified callback
+        );
     }
 
     private void Update()
