@@ -56,18 +56,17 @@ public class FallingController : MonoBehaviour
         Debug.Log($"[FallingController] Found empty spaces in {emptySpaces.Count} columns");
         OnEmptySpacesReady?.Invoke(emptySpaces);
 
-        gridManager.DecrementTapEnabled();
 
 
         // wait for all animations to complete
         Debug.Log("[FallingController] Waiting for animations to complete");
         yield return StartCoroutine(WaitForAnimationsToComplete());
 
-
         isFalling = false;
         Debug.Log("[FallingController] Falling complete");
-
         yield return new WaitForSeconds(0.1f);
+        gridManager.DecrementTapEnabled();
+
     }
 
 

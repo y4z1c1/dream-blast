@@ -308,6 +308,9 @@ public class RocketAnimations : MonoBehaviour
         // create sequence for path animation
         Sequence pathSequence = DOTween.Sequence();
 
+        // track if we've hit the last valid grid position
+        bool lastValidPositionHit = false;
+
         // add animations for each path point
         for (int i = 0; i < path.Count; i++)
         {
@@ -344,14 +347,6 @@ public class RocketAnimations : MonoBehaviour
                         DOTween.Kill(projectileObj.transform);
                     }
                 })
-                .OnKill(() =>
-                {
-                    // If killed, still try to process the hit
-                    if (currentIndex < path.Count)
-                    {
-                        onHitPosition?.Invoke(path[currentIndex]);
-                    }
-                })
                 .OnComplete(() =>
                 {
                     // call the hit callback for this position
@@ -362,6 +357,15 @@ public class RocketAnimations : MonoBehaviour
                     {
                         particleManager.PlayEffect("RocketStar", worldPos, 0.5f);
                     }
+
+                    // check if this was the last valid grid position
+                    if (!lastValidPositionHit &&
+                        (targetPosition.x < 0 || targetPosition.x >= gridManager.GetWidth() ||
+                         targetPosition.y < 0 || targetPosition.y >= gridManager.GetHeight()))
+                    {
+                        lastValidPositionHit = true;
+                        onComplete?.Invoke();
+                    }
                 }) : DOTween.Sequence() // empty sequence if projectile is null
             );
             // small pause
@@ -369,17 +373,18 @@ public class RocketAnimations : MonoBehaviour
             {
                 pathSequence.AppendInterval(0.03f);
             }
-
         }
 
         // Clean up projectile when sequence completes
         pathSequence.OnComplete(() =>
         {
-            // wait for 0.1 seconds before cleaning up
             CleanupProjectile(projectileObj, trailEffect, smokeEffect);
 
-            // invoke completion callback
-            onComplete?.Invoke();
+            // invoke completion callback if we haven't already
+            if (!lastValidPositionHit)
+            {
+                onComplete?.Invoke();
+            }
 
             if (IsDebugEnabled()) Debug.Log("[RocketAnimations] Rocket projectile animation completed");
         });
@@ -409,20 +414,19 @@ public class RocketAnimations : MonoBehaviour
         {
             trailEffect.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             trailEffect.transform.parent = null;
-            GameObject.Destroy(trailEffect.gameObject, trailEffect.main.startLifetimeMultiplier);
+            particleManager.ReturnParticleToPool(trailEffect, "RocketStar");
         }
 
         if (smokeEffect != null)
         {
             smokeEffect.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             smokeEffect.transform.parent = null;
-            GameObject.Destroy(smokeEffect.gameObject, smokeEffect.main.startLifetimeMultiplier);
+            particleManager.ReturnParticleToPool(smokeEffect, "RocketSmoke");
         }
 
         // Destroy the projectile
         GameObject.Destroy(projectileObj);
     }
-
     // helper method for camera shake effect
     private static void CreateCameraShake(float intensity, float duration)
     {
@@ -688,6 +692,9 @@ public class RocketAnimations : MonoBehaviour
         // get animation settings
         float projectileSpeed = animManager.GetRocketProjectileSpeed();
 
+        // track if we've hit the last valid grid position
+        bool lastValidPositionHit = false;
+
         // skip index 0 which is the rocket position itself
         for (int i = 1; i < path.Count; i++)
         {
@@ -745,6 +752,15 @@ public class RocketAnimations : MonoBehaviour
                     {
                         particleManager.PlayEffect("RocketStar", targetWorldPos, 0.5f);
                     }
+
+                    // check if this was the last valid grid position
+                    if (!lastValidPositionHit &&
+                        (targetPos.x < 0 || targetPos.x >= gridManager.GetWidth() ||
+                         targetPos.y < 0 || targetPos.y >= gridManager.GetHeight()))
+                    {
+                        lastValidPositionHit = true;
+                        pathSequence.Complete(); // complete the sequence when last valid position is hit
+                    }
                 }) : DOTween.Sequence() // empty sequence if projectile is null
             );
 
@@ -762,14 +778,14 @@ public class RocketAnimations : MonoBehaviour
             {
                 trailEffect.Stop(true, ParticleSystemStopBehavior.StopEmitting);
                 trailEffect.transform.parent = null;
-                GameObject.Destroy(trailEffect.gameObject, trailEffect.main.startLifetimeMultiplier);
+                particleManager.ReturnParticleToPool(trailEffect, "RocketStar");
             }
 
             if (smokeEffect != null)
             {
                 smokeEffect.Stop(true, ParticleSystemStopBehavior.StopEmitting);
                 smokeEffect.transform.parent = null;
-                GameObject.Destroy(smokeEffect.gameObject, smokeEffect.main.startLifetimeMultiplier);
+                particleManager.ReturnParticleToPool(smokeEffect, "RocketSmoke");
             }
 
             Destroy(projectile);
@@ -1002,6 +1018,9 @@ public class RocketAnimations : MonoBehaviour
                 startScales.Add(transform.localScale);
                 renderers.Add(renderer);
                 startColors.Add(renderer.color);
+
+                // increase sorting layer by 50 for combine animation
+                renderer.sortingOrder += 50;
 
                 // calculate mid-position in one pass
                 Vector3 directionFromTarget = (startPos - targetWorldPos).normalized;

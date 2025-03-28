@@ -183,6 +183,8 @@ public class Rocket : GridItem
         path1.Add(pos); // add rocket position first
         path2.Add(pos); // add rocket position first
 
+        // calculate off-screen positions based on direction
+        Vector2Int offScreenPos1, offScreenPos2;
         if (direction == RocketDirection.Horizontal)
         {
             // path 1: left direction
@@ -190,12 +192,14 @@ public class Rocket : GridItem
             {
                 path1.Add(new Vector2Int(x, pos.y));
             }
+            offScreenPos1 = new Vector2Int(-1, pos.y); // one unit left of grid
 
             // path 2: right direction
             for (int x = pos.x + 1; x < gridManager.GetWidth(); x++)
             {
                 path2.Add(new Vector2Int(x, pos.y));
             }
+            offScreenPos2 = new Vector2Int(gridManager.GetWidth(), pos.y); // one unit right of grid
         }
         else // vertical
         {
@@ -204,13 +208,19 @@ public class Rocket : GridItem
             {
                 path1.Add(new Vector2Int(pos.x, y));
             }
+            offScreenPos1 = new Vector2Int(pos.x, -1); // one unit below grid
 
             // path 2: up direction
             for (int y = pos.y + 1; y < gridManager.GetHeight(); y++)
             {
                 path2.Add(new Vector2Int(pos.x, y));
             }
+            offScreenPos2 = new Vector2Int(pos.x, gridManager.GetHeight()); // one unit above grid
         }
+
+        // add off-screen positions to paths
+        path1.Add(offScreenPos1);
+        path2.Add(offScreenPos2);
 
         // process explosions with or without animations
         activeExplosions = 2; // track two explosion paths
@@ -241,14 +251,39 @@ public class Rocket : GridItem
         // use the animation manager to create a projectile
         if (animationManager != null)
         {
+            // calculate off-screen world position for the last point
+            Vector2Int lastPos = path[path.Count - 1];
+            Vector3 lastWorldPos;
+
+            // if this is an off-screen position
+            if (lastPos.x < 0 || lastPos.x >= gridManager.GetWidth() ||
+                lastPos.y < 0 || lastPos.y >= gridManager.GetHeight())
+            {
+                // get the direction from the last two points
+                Vector2Int direction = lastPos - path[path.Count - 2];
+
+                // extend the last position in the same direction
+                lastPos = lastPos + (direction * 10);
+            }
+
+            // convert to world position
+            lastWorldPos = new Vector3(lastPos.x, lastPos.y, 0);
+
+            // replace the last position with the extended position
+            path[path.Count - 1] = lastPos;
+
             animationManager.AnimateRocketProjectile(
                 this,
                 path,
                 (hitPosition) =>
                 {
-                    // don't process the rocket position itself
-                    if (hitPosition.x != GetGridPosition().x || hitPosition.y != GetGridPosition().y)
+                    // don't process the rocket position itself or off-screen positions
+                    if ((hitPosition.x != GetGridPosition().x || hitPosition.y != GetGridPosition().y) &&
+                        hitPosition.x >= 0 && hitPosition.x < gridManager.GetWidth() &&
+                        hitPosition.y >= 0 && hitPosition.y < gridManager.GetHeight())
+                    {
                         ProcessExplosionAtPosition(hitPosition);
+                    }
                 }
             );
         }
@@ -521,7 +556,13 @@ public class Rocket : GridItem
                             {
                                 upPath.Add(new Vector2Int(startX, y));
                             }
-                            if (upPath.Count > 1) explosionPaths.Add(upPath);
+                            // add off-screen position
+                            if (upPath.Count > 1)
+                            {
+                                Vector2Int direction = upPath[upPath.Count - 1] - upPath[upPath.Count - 2];
+                                upPath.Add(upPath[upPath.Count - 1] + (direction * 10));
+                                explosionPaths.Add(upPath);
+                            }
                         }
 
                         // 3 paths going down (from left, center, right)
@@ -536,7 +577,13 @@ public class Rocket : GridItem
                             {
                                 downPath.Add(new Vector2Int(startX, y));
                             }
-                            if (downPath.Count > 1) explosionPaths.Add(downPath);
+                            // add off-screen position
+                            if (downPath.Count > 1)
+                            {
+                                Vector2Int direction = downPath[downPath.Count - 1] - downPath[downPath.Count - 2];
+                                downPath.Add(downPath[downPath.Count - 1] + (direction * 10));
+                                explosionPaths.Add(downPath);
+                            }
                         }
 
                         // 3 paths going left (from top, center, bottom)
@@ -551,7 +598,13 @@ public class Rocket : GridItem
                             {
                                 leftPath.Add(new Vector2Int(x, startY));
                             }
-                            if (leftPath.Count > 1) explosionPaths.Add(leftPath);
+                            // add off-screen position
+                            if (leftPath.Count > 1)
+                            {
+                                Vector2Int direction = leftPath[leftPath.Count - 1] - leftPath[leftPath.Count - 2];
+                                leftPath.Add(leftPath[leftPath.Count - 1] + (direction * 10));
+                                explosionPaths.Add(leftPath);
+                            }
                         }
 
                         // 3 paths going right (from top, center, bottom)
@@ -566,7 +619,13 @@ public class Rocket : GridItem
                             {
                                 rightPath.Add(new Vector2Int(x, startY));
                             }
-                            if (rightPath.Count > 1) explosionPaths.Add(rightPath);
+                            // add off-screen position
+                            if (rightPath.Count > 1)
+                            {
+                                Vector2Int direction = rightPath[rightPath.Count - 1] - rightPath[rightPath.Count - 2];
+                                rightPath.Add(rightPath[rightPath.Count - 1] + (direction * 10));
+                                explosionPaths.Add(rightPath);
+                            }
                         }
 
                         // process with or without animations
@@ -581,9 +640,13 @@ public class Rocket : GridItem
                                 explosionPaths,
                                 (hitPos) =>
                                 {
-                                    // don't process the rocket position itself
-                                    if (hitPos.x != pos.x || hitPos.y != pos.y)
+                                    // don't process the rocket position itself or off-screen positions
+                                    if ((hitPos.x != pos.x || hitPos.y != pos.y) &&
+                                        hitPos.x >= 0 && hitPos.x < gridManager.GetWidth() &&
+                                        hitPos.y >= 0 && hitPos.y < gridManager.GetHeight())
+                                    {
                                         ProcessExplosionAtPosition(hitPos);
+                                    }
                                 },
                                 () => { ExplosionCompleteForCombination(adjacentRockets); }
                             );

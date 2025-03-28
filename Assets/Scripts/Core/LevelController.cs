@@ -545,8 +545,8 @@ public class LevelController : MonoBehaviour
 
     private IEnumerator ProcessAfterChainReaction(int chainReactionCount)
     {
-        DebugLog("Processing after chain reaction - hasTriggeredAnotherRocket, waiting for " + (0.04f * chainReactionCount) + " seconds");
-        yield return new WaitForSeconds(0.04f * chainReactionCount);
+        DebugLog("Processing after chain reaction - hasTriggeredAnotherRocket, waiting for " + (0.03f * chainReactionCount) + " seconds");
+        yield return new WaitForSeconds(0.03f * chainReactionCount);
 
         DebugLog("Processing after chain reaction - calling ProcessAfterMatch");
         StartCoroutine(ProcessAfterMatch());
@@ -587,6 +587,9 @@ public class LevelController : MonoBehaviour
 
         DebugLog("All animations complete");
 
+        // check for empty cells before scanning for matches
+        yield return CheckAndProcessEmptyCells();
+
         // rescan for matches
         if (matchFinder != null)
         {
@@ -598,7 +601,46 @@ public class LevelController : MonoBehaviour
             DebugLogWarning("Warning: matchFinder is null");
         }
         gridManager.DecrementTapEnabled();
+    }
 
+    // check for empty cells and process falling if needed
+    private IEnumerator CheckAndProcessEmptyCells()
+    {
+        if (gridManager == null)
+        {
+            DebugLogWarning("Warning: gridManager is null in CheckAndProcessEmptyCells");
+            yield break;
+        }
+
+        // check if there are any empty cells
+        bool hasEmptyCells = false;
+        for (int x = 0; x < currentLevelData.grid_width; x++)
+        {
+            for (int y = 0; y < currentLevelData.grid_height; y++)
+            {
+                GridCell cell = gridManager.GetCell(x, y);
+                if (cell != null && cell.GetItem() == null)
+                {
+                    hasEmptyCells = true;
+                    break;
+                }
+            }
+            if (hasEmptyCells) break;
+        }
+
+        // if there are empty cells, process falling
+        if (hasEmptyCells)
+        {
+            DebugLogWarning("⚠️ Empty cells detected, processing falling");
+            if (fallingController != null)
+            {
+                yield return fallingController.ProcessFalling();
+            }
+            else
+            {
+                DebugLogWarning("Warning: fallingController is null in CheckAndProcessEmptyCells");
+            }
+        }
     }
 
     private void CheckGameState()

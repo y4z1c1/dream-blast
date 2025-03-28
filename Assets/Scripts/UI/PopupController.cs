@@ -114,7 +114,7 @@ public class PopupController : MonoBehaviour
             if (overlayCanvas == null)
             {
                 overlayCanvas = backgroundOverlay.gameObject.AddComponent<Canvas>();
-                overlayCanvas.sortingOrder = 50; // high to ensure it's above game elements
+                overlayCanvas.sortingOrder = 100; // high to ensure it's above game elements
 
                 // add graphic raycaster to block inputs
                 GraphicRaycaster raycaster = backgroundOverlay.gameObject.AddComponent<GraphicRaycaster>();

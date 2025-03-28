@@ -896,10 +896,10 @@ MonoBehaviour:
   uiAnimationsEnabled: 1
   fallingAnimationsEnabled: 1
   spawnAnimationsEnabled: 1
-  cubeDestroyDuration: 0.2
+  cubeDestroyDuration: 0.1
   rocketCreateDuration: 0.3
   rocketExplosionDuration: 0.1
-  rocketProjectileSpeed: 30
+  rocketProjectileSpeed: 40
   rocketExplosionShakeIntensity: 0.02
   rocketExplosionShakeDuration: 0.2
   comboExplosionShakeIntensity: 0.05
@@ -916,9 +916,9 @@ MonoBehaviour:
   buttonPressAnimationDuration: 0.15
   buttonTransitionDuration: 0.5
   buttonAppearDelay: 0.2
-  fallingGravity: 150
+  fallingGravity: 200
   fallingBounceIntensity: 0.1
-  spawnGravity: 150
+  spawnGravity: 200
   spawnBounceIntensity: 0.2
   spawnFadeDuration: 0.1
   damageFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}

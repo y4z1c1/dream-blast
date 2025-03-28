@@ -250,4 +250,24 @@ public class ParticleManager : MonoBehaviour
         }
         Debug.Log("[PARTICLE] Usage statistics reset");
     }
+
+    /// return a particle system to its pool
+    public void ReturnParticleToPool(ParticleSystem particle, string poolName)
+    {
+        if (particle == null || !particlePools.ContainsKey(poolName))
+        {
+            Debug.LogWarning($"[PARTICLE] Cannot return particle to pool {poolName}: Invalid particle or pool name");
+            return;
+        }
+
+        // stop emission
+        var emission = particle.emission;
+        emission.enabled = false;
+
+        // return to pool
+        particlePools[poolName].ReturnParticle(particle);
+
+        if (logParticleUsage)
+            Debug.Log($"[PARTICLE] Manually returned {poolName} particle to pool");
+    }
 }
