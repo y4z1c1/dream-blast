@@ -128,7 +128,7 @@ public class FallingController : MonoBehaviour
                 if (itemToMove == null)
                     continue;
 
-                itemToMove.SetIsFalling(true);
+                itemToMove.SetCanInteract(false);
 
                 // update grid data immediately for correct simulation
                 sourceCell.ClearItem();
@@ -165,10 +165,8 @@ public class FallingController : MonoBehaviour
                             {
                                 if (item is Cube cube)
                                 {
-                                    cube.SetHasReachedTarget(true);
+                                    cube.SetCanInteract(true);
                                 }
-
-                                item.SetIsFalling(false);
                             }
                         }
                     );
@@ -183,9 +181,8 @@ public class FallingController : MonoBehaviour
                         // mark cube as ready immediately
                         if (batchItems[i] is Cube cube)
                         {
-                            cube.SetHasReachedTarget(true);
+                            cube.SetCanInteract(true);
                         }
-                        batchItems[i].SetIsFalling(false);
                     }
 
                     activeAnimationCount--;

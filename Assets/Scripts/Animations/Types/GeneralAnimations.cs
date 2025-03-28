@@ -413,9 +413,7 @@ public static class GeneralAnimations
                     if (itemTransform != null)
                         itemTransform.position = targetPos;
 
-                    // mark cube as ready when animation completes
-                    if (item is Cube cube)
-                        cube.SetHasReachedTarget(true);
+
 
                     // decrement active count and check if all done
                     activeCount--;
@@ -437,9 +435,6 @@ public static class GeneralAnimations
                         itemTransform.localScale = Vector3.one;
                     }
 
-                    // mark cube as ready if animation is killed
-                    if (item is Cube cube)
-                        cube.SetHasReachedTarget(true);
 
                     // decrement active count and check if all done
                     activeCount--;
@@ -502,6 +497,9 @@ public static class GeneralAnimations
         // Store references for safety in callbacks
         Transform cubeTransform = cube.transform;
         GameObject cubeObject = cube.gameObject;
+
+        // set can interact to false
+        cube.SetCanInteract(false);
 
         // get renderers for fade-in effect
         Renderer[] renderers = cube.GetComponentsInChildren<Renderer>();
@@ -610,6 +608,7 @@ public static class GeneralAnimations
             if (cubeTransform != null)
             {
                 cubeTransform.position = targetPosition; // ensure final position
+                cube.SetCanInteract(true);
             }
 
             if (IsDebugEnabled()) Debug.Log($"[GeneralAnimations] Completed cube spawn animation for {(cubeObject != null ? cubeObject.name : "destroyed cube")}");

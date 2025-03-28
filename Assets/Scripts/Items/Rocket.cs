@@ -57,7 +57,7 @@ public class Rocket : GridItem
     // OnMouseDown handler for clicking the rocket
     private void OnMouseDown()
     {
-        if (!isExploding && !isFalling && gridManager.TapEnabled)
+        if (!isExploding && canInteract && gridManager.TapEnabled)
         {
             Debug.Log($"Rocket clicked at position {GetGridPosition()}");
             OnTap();

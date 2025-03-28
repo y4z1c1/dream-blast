@@ -10,13 +10,13 @@ public abstract class GridItem : MonoBehaviour
     // reference to grid manager
     protected GridManager gridManager;
 
-    protected bool isFalling = false;
+    protected bool canInteract = true;
 
-    public bool IsFalling { get => isFalling; }
+    public bool CanInteract { get => canInteract; }
 
-    public void SetIsFalling(bool value)
+    public void SetCanInteract(bool value)
     {
-        isFalling = value;
+        canInteract = value;
     }
     // get sprite renderer in derived classes
     protected virtual SpriteRenderer GetSpriteRenderer()

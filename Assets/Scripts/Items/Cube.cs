@@ -34,8 +34,6 @@ public class Cube : GridItem
 
     // state tracking
     private bool isRocketIndicatorShown;
-    private bool hasReachedTarget;
-    private bool isAnimating;
 
     // invalid move animation cooldown
     private float lastInvalidMoveTime;
@@ -55,25 +53,22 @@ public class Cube : GridItem
 
     private void OnDestroy()
     {
-        // kill any running animations and reset state when destroyed
-        ResetAnimationState();
+
     }
 
     private void OnDisable()
     {
-        // ensure cube is properly reset if disabled during animation
-        ResetAnimationState();
+
     }
 
     private void OnEnable()
     {
-        // ensure cube is in proper state when enabled
-        ResetAnimationState();
+
     }
 
     private void OnMouseDown()
     {
-        if (!gridManager.TapEnabled)
+        if (!gridManager.TapEnabled || !canInteract)
         {
             Debug.Log("Cube at " + GetGridPosition() + " tap disabled - not processing tap");
             return;
@@ -98,18 +93,11 @@ public class Cube : GridItem
         // register with cell
         RegisterWithCell();
 
-        // reset falling state
-        hasReachedTarget = false;
 
         // update sorting order based on position
         UpdateSortingOrder();
     }
 
-    // check if the cube has reached its target position during falling
-    public bool HasReachedTarget() => hasReachedTarget;
-
-    // set whether the cube has reached its target position
-    public void SetHasReachedTarget(bool reached) => hasReachedTarget = reached;
 
     // override setgridposition to update sorting order whenever position changes
     public override void SetGridPosition(int x, int y)
@@ -126,7 +114,7 @@ public class Cube : GridItem
     // override the ontap method from griditem
     public override void OnTap()
     {
-        if (matchFinder == null || isFalling)
+        if (matchFinder == null)
         {
             // try to find matchfinder if not set
             matchFinder = FindFirstObjectByType<MatchFinder>();
@@ -163,7 +151,7 @@ public class Cube : GridItem
     public void ShowRocketIndicator(bool show)
     {
         // skip if state isn't changing or animation already in progress
-        if (isRocketIndicatorShown == show || isAnimating)
+        if (isRocketIndicatorShown == show)
             return;
 
         // update state
@@ -173,19 +161,7 @@ public class Cube : GridItem
         AnimationManager animManager = AnimationManager.Instance;
         if (animManager != null)
         {
-            isAnimating = true;
             animManager.AnimateCubeRocketIndicator(this, show, defaultSprite, rocketSprite, glowAnimDuration, glowIntensity);
-
-            // for non-animated transitions, we need to reset the animation flag
-            if (!show)
-            {
-                isAnimating = false;
-            }
-            else
-            {
-                // for animated transitions, set a timer to reset the flag
-                StartCoroutine(ResetAnimatingFlag(glowAnimDuration));
-            }
         }
         else
         {
@@ -260,23 +236,6 @@ public class Cube : GridItem
         }
     }
 
-    // reset animation state and cleanup
-    private void ResetAnimationState()
-    {
-        // reset animation flag
-        isAnimating = false;
 
-        // reset color to white
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.color = Color.white;
-        }
-    }
 
-    // helper to reset the animating flag after a delay
-    private IEnumerator ResetAnimatingFlag(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        isAnimating = false;
-    }
 }

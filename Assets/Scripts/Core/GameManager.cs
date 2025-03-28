@@ -61,6 +61,13 @@ public class GameManager : MonoBehaviour
                 UpdateLevelButtonText();
             }
         }
+
+        // start level with return key
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            StartLevel();
+        }
+
     }
 
     // called when a scene is loaded

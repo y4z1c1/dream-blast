@@ -379,7 +379,7 @@ public class GridFiller : MonoBehaviour
                 () =>
                 {
                     // Mark cube as ready when animation completes
-                    cube.SetHasReachedTarget(true);
+                    cube.SetCanInteract(true);
                     activeAnimationCount--; // Decrement active animation count
 
                     // Check if all animations are complete
@@ -398,7 +398,7 @@ public class GridFiller : MonoBehaviour
         {
             // Fallback if animation manager is not available
             cube.transform.position = targetPosition;
-            cube.SetHasReachedTarget(true);
+            cube.SetCanInteract(true);
             activeAnimationCount--;
 
             // Check if all animations are complete
