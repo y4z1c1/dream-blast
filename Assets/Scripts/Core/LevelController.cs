@@ -217,6 +217,9 @@ public class LevelController : MonoBehaviour
     {
         if (currentLevelData == null || gridManager == null) return;
 
+
+        gridManager.ResetTapEnabled();
+
         // populate grid with initial tiles based on level data
         for (int x = 0; x < currentLevelData.grid_width; x++)
         {
@@ -672,7 +675,7 @@ public class LevelController : MonoBehaviour
 
     {
 
-        gridManager.IncrementTapEnabled();
+        gridManager.IncrementTapEnabled(100);
 
         isGameOver = true;
 
@@ -696,18 +699,10 @@ public class LevelController : MonoBehaviour
             {
                 DebugLog($"Showing win popup from LevelController. isLastLevel: {isLastLevel}, totalLevels: {totalLevels}, nextLevel: {nextLevel}");
                 // show appropriate popup based on whether this is the last level
-                if (isLastLevel)
-                {
-                    PopupController.ShowFinalWinPopup(1.0f); // show final win popup with only close button
-                    GameManager.Instance.SetLevel(nextLevel);
 
-                }
-                else
-                {
-                    // set the next level only when showing the normal win popup
-                    GameManager.Instance.SetLevel(nextLevel);
-                    PopupController.ShowWinPopup(1.0f); // show normal win popup with next level button
-                }
+                GameManager.Instance.SetLevel(nextLevel);
+                PopupController.ShowWinPopup(0.8f); // show normal win popup with next level button
+
                 isPopupShown = true; // mark popup as shown
             }
             else
@@ -724,7 +719,7 @@ public class LevelController : MonoBehaviour
             if (popupController != null)
             {
                 DebugLog("Showing lose popup from LevelController");
-                PopupController.ShowLosePopup(1.5f);
+                PopupController.ShowLosePopup(0.5f);
                 isPopupShown = true; // mark popup as shown
             }
             else
@@ -832,6 +827,8 @@ public class LevelController : MonoBehaviour
 
         foreach (Obstacle obstacle in obstaclesCopy)
         {
+            if (obstacle == null) continue;
+
             if (obstacle is BoxObstacle boxObstacle)
             {
                 // check each match position against this box

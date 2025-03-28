@@ -104,12 +104,7 @@ public class MatchFinder : MonoBehaviour
     // Event handler for when falling creates empty spaces
     private void OnEmptySpacesReady(Dictionary<int, int> emptySpacesPerColumn)
     {
-        // Only handle this event if we're not already processing matches
-        if (isProcessing)
-        {
-            Debug.Log("Cannot fill empty spaces - still processing matches");
-            return;
-        }
+
 
         // Fill the empty spaces immediately - don't wait for falling to complete
         if (gridFiller != null && emptySpacesPerColumn.Count > 0)
@@ -393,11 +388,6 @@ public class MatchFinder : MonoBehaviour
         // Process the destruction with animation
         List<Vector2Int> affectedPositions = matchGroup.ProcessDestruction(createRocket);
 
-        if (createRocket)
-        {
-            yield return new WaitForSeconds(0.15f);
-        }
-
 
         DebugLog($"Match destruction processed, affecting {affectedPositions.Count} positions");
 
@@ -411,10 +401,13 @@ public class MatchFinder : MonoBehaviour
             DebugLogWarning("LevelController is null, cannot check obstacle effects");
         }
 
-        // Wait for destruction animation to complete
-        yield return StartCoroutine(WaitForDestructionAnimation(matchGroup));
 
         DebugLog("Destruction animation completed");
+
+        if (createRocket)
+        {
+            yield return new WaitForSeconds(animationManager.GetRocketCreateDuration());
+        }
 
         // Notify level controller about match completion
         if (levelController != null)
@@ -435,21 +428,6 @@ public class MatchFinder : MonoBehaviour
         isProcessing = false;
     }
 
-    // Helper to wait for destruction animation to finish
-    private IEnumerator WaitForDestructionAnimation(MatchGroup matchGroup)
-    {
-        float waitTime = 0.3f; // Default animation wait time
-
-        // Use animation manager's duration if available
-        if (animationManager != null)
-        {
-            waitTime = animationManager.GetCubeDestroyDuration();
-            DebugLog($"Using animation manager's cube destroy duration: {waitTime}s");
-        }
-
-        DebugLog($"Waiting {waitTime}s for destruction animation to complete");
-        yield return new WaitForSeconds(waitTime / 2);
-    }
 
     // reset all rocket indicators
     private void ResetAllRocketIndicators()

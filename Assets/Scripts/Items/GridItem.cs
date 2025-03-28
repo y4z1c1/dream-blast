@@ -18,6 +18,7 @@ public abstract class GridItem : MonoBehaviour
     {
         canInteract = value;
     }
+
     // get sprite renderer in derived classes
     protected virtual SpriteRenderer GetSpriteRenderer()
     {

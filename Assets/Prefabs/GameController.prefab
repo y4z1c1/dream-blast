@@ -10,8 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 848767460346951810}
   - component: {fileID: 7018298631088940679}
-  - component: {fileID: 1238881656863176961}
-  - component: {fileID: 5021407695081936669}
   m_Layer: 0
   m_Name: GameController
   m_TagString: Untagged
@@ -46,28 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c68496d36cde44196a8911361ed5ced4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1238881656863176961
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 224911914691694583}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a68845e2e85314db5aec6714714115ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &5021407695081936669
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 224911914691694583}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1941f273f8a2541c898cd3b6c80dc0c7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelToSet: 2
+  levelButtonText: {fileID: 0}
+  levelButtonObj: {fileID: 0}
+  levelButton: {fileID: 0}
+  debugLevelToSet: 1

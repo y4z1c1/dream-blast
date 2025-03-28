@@ -746,7 +746,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1884381941}
   - component: {fileID: 1884381940}
-  - component: {fileID: 1884381942}
   m_Layer: 0
   m_Name: ParticleManager
   m_TagString: Untagged
@@ -841,23 +840,6 @@ Transform:
   - {fileID: 1962354345}
   m_Father: {fileID: 1912470838}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1884381942
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1884381939}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa4e71bde94304e9091514525140d7aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  particleSystems: []
-  poolParent: {fileID: 1962354345}
-  particlesEnabled: 1
-  logParticleUsage: 0
-  monitorPoolSizes: 1
 --- !u!1 &1912470835
 GameObject:
   m_ObjectHideFlags: 0
@@ -905,7 +887,7 @@ MonoBehaviour:
   comboExplosionShakeIntensity: 0.05
   comboExplosionShakeDuration: 0.8
   rocketStarEmissionMultiplier: 0.02
-  rocketSmokeEmissionMultiplier: 0.5
+  rocketSmokeEmissionMultiplier: 1
   rocketStarSizeMultiplier: 0.2
   rocketSmokeSizeMultiplier: 1.2
   particleBurstMultiplier: 0.5
@@ -919,7 +901,7 @@ MonoBehaviour:
   fallingGravity: 200
   fallingBounceIntensity: 0.1
   spawnGravity: 200
-  spawnBounceIntensity: 0.2
+  spawnBounceIntensity: 0.1
   spawnFadeDuration: 0.1
   damageFlashColor: {r: 1, g: 0.3, b: 0.3, a: 1}
   particleManager: {fileID: 1884381940}

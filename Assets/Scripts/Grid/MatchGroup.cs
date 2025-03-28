@@ -74,12 +74,11 @@ public class MatchGroup
         // if this is a rocket match (4+ cubes) and we should create a rocket
         if (IsRocketMatch && createRocket)
         {
-            // mark the position as reserved for a rocket
-            ReservePositionForRocket(rocketPosition);
+
 
             if (animationManager != null)
             {
-                // use the special combine animation
+
                 animationManager.AnimateRocketCombine(MatchedCubes, rocketPosition);
             }
             else

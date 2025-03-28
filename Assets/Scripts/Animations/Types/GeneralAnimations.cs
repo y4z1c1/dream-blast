@@ -483,14 +483,12 @@ public static class GeneralAnimations
         // get physics simulation parameters from animation manager
         float gravity = animManager.GetSpawnGravity();
         float bounceIntensity = animManager.GetSpawnBounceIntensity();
-        float fadeDuration = animManager.GetSpawnFadeDuration();
         float distance = startPosition.y - targetPosition.y;
         float duration = Mathf.Max(0.1f, Mathf.Sqrt(2 * distance / gravity)); // ensure minimum duration
 
         // apply animation speed modifier
         float speedMultiplier = animManager.GetAnimationSpeed();
         duration /= speedMultiplier;
-        fadeDuration /= speedMultiplier;
 
         if (IsDebugEnabled()) Debug.Log($"[GeneralAnimations] Starting cube spawn animation for {cube.name} from {startPosition} to {targetPosition} with duration {duration}");
 
@@ -501,14 +499,6 @@ public static class GeneralAnimations
         Transform cubeTransform = cube.transform;
         GameObject cubeObject = cube.gameObject;
 
-
-
-        // get renderers for fade-in effect
-        Renderer[] renderers = cube.GetComponentsInChildren<Renderer>();
-
-        // set initial alpha to zero
-        SetRenderersAlpha(renderers, 0f);
-
         // create a sequence for the animation
         Sequence spawnSequence = DOTween.Sequence();
 
@@ -518,32 +508,6 @@ public static class GeneralAnimations
 
         // optional: add an ID for better tracking
         spawnSequence.SetId("cubeSpawn_" + cube.GetInstanceID());
-
-        // fade in as cube falls
-        spawnSequence.Join(
-            DOTween.To(() => 0f, x =>
-            {
-                // Skip if renderers or cube were destroyed
-                if (renderers == null || cubeObject == null) return;
-
-                SetRenderersAlpha(renderers, x);
-            }, 1f, fadeDuration)
-            .OnUpdate(() =>
-            {
-                // Extra check if target was destroyed
-                if (renderers == null || cubeObject == null)
-                {
-                    // If object is gone, kill the tween
-                    DOTween.Kill(cubeObject);
-                }
-            })
-            .OnKill(() =>
-            {
-                // ensure full opacity if killed during fade
-                if (renderers != null)
-                    SetRenderersAlpha(renderers, 1f);
-            })
-        );
 
         // custom ease function for gravity - use callbacks instead
         Vector3 initialPos = startPosition;
@@ -630,26 +594,11 @@ public static class GeneralAnimations
             if (cubeTransform != null)
             {
                 cubeTransform.position = targetPosition;
-                SetRenderersAlpha(renderers, 1f);
             }
 
             // Always invoke completion callback
             onComplete?.Invoke();
         });
-    }
-
-    // helper method to set alpha for all renderers
-    private static void SetRenderersAlpha(Renderer[] renderers, float alpha)
-    {
-        foreach (Renderer renderer in renderers)
-        {
-            if (renderer != null)
-            {
-                Color color = renderer.material.color;
-                color.a = alpha;
-                renderer.material.color = color;
-            }
-        }
     }
 
     // animate grid appearance from bottom with smooth easing

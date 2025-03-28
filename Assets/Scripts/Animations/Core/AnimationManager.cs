@@ -10,6 +10,21 @@ public class AnimationManager : MonoBehaviour
     // singleton instance
     public static AnimationManager Instance { get; private set; }
 
+    private GridManager gridManager;
+
+    public void SetGridManager(GridManager gridManager)
+    {
+        this.gridManager = gridManager;
+    }
+
+    private void Update()
+    {
+        if (gridManager == null)
+        {
+            gridManager = FindFirstObjectByType<GridManager>();
+        }
+    }
+
     // animation duration settings
     [Header("Debug Settings")]
     [SerializeField] private bool debugMode = false;
@@ -574,13 +589,15 @@ public class AnimationManager : MonoBehaviour
             return;
         }
 
+        gridManager.IncrementTapEnabled();
+
+
         if (!AreRocketAnimationsEnabled())
         {
             if (debugMode) Debug.Log("[AnimationManager] Rocket animations disabled, creating rocket directly");
             // Create the rocket directly without animation
             if (cubes.Count > 0)
             {
-                GridManager gridManager = cubes[0].GetGridManager();
                 if (gridManager != null)
                 {
                     // Destroy the cubes immediately
@@ -824,22 +841,20 @@ public class AnimationManager : MonoBehaviour
                 if (debugMode) Debug.Log($"[AnimationManager] Rocket combine animation {(success ? "succeeded" : "failed")}");
             });
 
-        // wait for animation to complete
-        yield return new WaitForSeconds(0.3f);
-
         // create the rocket at the target position
         if (cubes.Count > 0)
         {
-            GridManager gridManager = cubes[0].GetGridManager();
             if (gridManager != null)
             {
                 RocketCreator.CreateRocket(targetPosition, gridManager);
                 if (debugMode) Debug.Log("[AnimationManager] Rocket created at target position");
             }
         }
+        gridManager.DecrementTapEnabled();
 
         // add a small additional delay to ensure animations complete properly
-        yield return new WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.1f);
+
 
         isDestroying = false;
     }

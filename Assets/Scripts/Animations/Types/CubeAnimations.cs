@@ -249,6 +249,9 @@ public static class CubeAnimations
                 renderers.Add(renderer);
                 startColors.Add(renderer.color);
 
+                // increase sorting layer by 10
+                renderer.sortingOrder += 10;
+
                 // clear the cell immediately to prevent it from being used again
                 Vector2Int cubePos = cube.GetGridPosition();
                 GridCell cell = gridManager.GetCell(cubePos.x, cubePos.y);
@@ -275,13 +278,19 @@ public static class CubeAnimations
         {
             // calculate direction from target and add a small outward movement
             Vector3 directionFromTarget = (startPositions[i] - targetWorldPos).normalized;
-            float extraDistance = 0.2f;
+            float extraDistance = 0.3f;
             Vector3 midPosition = startPositions[i] + (directionFromTarget * extraDistance);
             midPositions.Add(midPosition);
         }
 
         // create the master sequence to track all animations
         Sequence masterSequence = DOTween.Sequence();
+
+        // play one initial particle effect 
+        if (particleManager != null)
+        {
+            particleManager.PlayEffect("RocketStar", targetWorldPos, 1.0f);
+        }
 
         // create animations for each cube
         for (int i = 0; i < cubeTransforms.Count; i++)
@@ -314,7 +323,7 @@ public static class CubeAnimations
                 }));
 
             // second movement - to target
-            cubeSequence.Append(trans.DOMove(targetWorldPos, duration * 0.6f / speedMultiplier)
+            cubeSequence.Append(trans.DOMove(targetWorldPos, duration * 0.4f / speedMultiplier)
                 .SetEase(Ease.InOutQuad)
                 .OnKill(() =>
                 {
@@ -383,7 +392,7 @@ public static class CubeAnimations
             onComplete?.Invoke(true);
         });
 
-        // Add safety OnKill handler for master sequence
+        // safety OnKill handler for master sequence
         masterSequence.OnKill(() =>
         {
             if (IsDebugEnabled()) Debug.Log("[CubeAnimations] Rocket combine master sequence killed, cleaning up");

@@ -559,7 +559,8 @@ public class Rocket : GridItem
                             // add off-screen position
                             if (upPath.Count > 1)
                             {
-                                Vector2Int direction = upPath[upPath.Count - 1] - upPath[upPath.Count - 2];
+                                // direction is up
+                                Vector2Int direction = new Vector2Int(0, 1);
                                 upPath.Add(upPath[upPath.Count - 1] + (direction * 10));
                                 explosionPaths.Add(upPath);
                             }
@@ -580,7 +581,8 @@ public class Rocket : GridItem
                             // add off-screen position
                             if (downPath.Count > 1)
                             {
-                                Vector2Int direction = downPath[downPath.Count - 1] - downPath[downPath.Count - 2];
+                                // direction is down
+                                Vector2Int direction = new Vector2Int(0, -1);
                                 downPath.Add(downPath[downPath.Count - 1] + (direction * 10));
                                 explosionPaths.Add(downPath);
                             }
@@ -601,7 +603,8 @@ public class Rocket : GridItem
                             // add off-screen position
                             if (leftPath.Count > 1)
                             {
-                                Vector2Int direction = leftPath[leftPath.Count - 1] - leftPath[leftPath.Count - 2];
+                                // direction is left
+                                Vector2Int direction = new Vector2Int(-1, 0);
                                 leftPath.Add(leftPath[leftPath.Count - 1] + (direction * 10));
                                 explosionPaths.Add(leftPath);
                             }
@@ -622,7 +625,8 @@ public class Rocket : GridItem
                             // add off-screen position
                             if (rightPath.Count > 1)
                             {
-                                Vector2Int direction = rightPath[rightPath.Count - 1] - rightPath[rightPath.Count - 2];
+                                // direction is right
+                                Vector2Int direction = new Vector2Int(1, 0);
                                 rightPath.Add(rightPath[rightPath.Count - 1] + (direction * 10));
                                 explosionPaths.Add(rightPath);
                             }

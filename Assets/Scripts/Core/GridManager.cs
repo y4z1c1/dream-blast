@@ -65,6 +65,27 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    // increment tapenabled by a specific amount
+    public void IncrementTapEnabled(int amount)
+    {
+        tapEnabled += amount;
+        Debug.Log($"[GridManager] ⬆️ Incremented tapEnabled by {amount} to {tapEnabled}");
+    }
+
+    // decrement tapenabled by a specific amount
+    public void DecrementTapEnabled(int amount)
+    {
+        tapEnabled -= amount;
+        Debug.Log($"[GridManager] ⬇️ Decremented tapEnabled by {amount} to {tapEnabled}");
+    }
+
+    // reset tap enabled
+    public void ResetTapEnabled()
+    {
+        tapEnabled = 0;
+        Debug.Log($"[GridManager] ⬇️ Reset tapEnabled to {tapEnabled}");
+    }
+
     private void Awake()
     {
         // initialize the grid
@@ -186,6 +207,9 @@ public class GridManager : MonoBehaviour
         // hide background initially
         gridBackground.gameObject.SetActive(false);
 
+
+
+
         // if using 9-slice scaling, set the size directly
         if (gridBackgroundPrefab.drawMode == SpriteDrawMode.Sliced)
         {
@@ -196,11 +220,12 @@ public class GridManager : MonoBehaviour
         {
             // otherwise scale it based on the sprite's original size with padding
             Vector2 originalSize = gridBackgroundPrefab.sprite.bounds.size;
-            gridBackground.transform.localScale = new Vector3(
+            Vector3 scale = new Vector3(
                 (width + padding * 2) / originalSize.x,
                 (height + padding * 2) / originalSize.y,
                 1f
             );
+            gridBackground.transform.localScale = scale;
         }
 
         // set sorting order to 0

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5531364066308850735}
   - component: {fileID: 8852132737994977178}
+  - component: {fileID: 5405086529876452285}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -17,14 +18,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5531364066308850735
-Transform:
+--- !u!224 &5531364066308850735
+RectTransform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 447384979065290501}
-  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -32,6 +32,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &8852132737994977178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49,3 +54,17 @@ MonoBehaviour:
   gridBackgroundPrefab: {fileID: 918810669056295847, guid: 42bc23c8a2d0a400bb54c2137d0022fa, type: 3}
   cellPrefab: {fileID: 7019389523972346742, guid: ec307a70c295b4fb4b9d7e70019fac5f, type: 3}
   cellSize: 1.45
+--- !u!114 &5405086529876452285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 447384979065290501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3312d7739989d2b4e91e6319e9a96d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Padding: {x: 0, y: 0, z: 0, w: 0}
+  m_Softness: {x: 0, y: 0}

@@ -136,7 +136,7 @@ public abstract class Obstacle : GridItem
         AnimationManager.Instance.AnimateObstacleDestruction(this);
 
         // wait for the animation to complete
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.6f);
 
         // destroy the game object after animation completes
         Destroy(gameObject);

@@ -57,7 +57,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -150,5 +150,6 @@ MonoBehaviour:
   color: 3
   defaultSprite: {fileID: -8425141836431729757, guid: 9e64c8bd3d252464995999e61f5ad406, type: 3}
   rocketSprite: {fileID: 6090080599973395561, guid: 11c0255d44c1f455687605b850bca8a0, type: 3}
-  crossoverAnimDuration: 0.3
-  scaleUpFactor: 1.2
+  glowAnimDuration: 0.9
+  glowIntensity: 1.2
+  invalidMoveCooldown: 2

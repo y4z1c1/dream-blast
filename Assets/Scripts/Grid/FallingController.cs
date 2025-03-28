@@ -28,12 +28,10 @@ public class FallingController : MonoBehaviour
     {
         Debug.Log("[FallingController] Starting ProcessFalling");
 
-        gridManager.IncrementTapEnabled();
-
-
         isFalling = true;
         Debug.Log("[FallingController] Set isFalling to true");
 
+        gridManager.IncrementTapEnabled();
         yield return StartCoroutine(WaitForAnimationsToComplete());
 
         // calculate all movements before processing
@@ -65,7 +63,9 @@ public class FallingController : MonoBehaviour
         isFalling = false;
         Debug.Log("[FallingController] Falling complete");
         yield return new WaitForSeconds(0.1f);
+
         gridManager.DecrementTapEnabled();
+
 
     }
 
