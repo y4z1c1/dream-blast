@@ -66,8 +66,6 @@ public class GridFiller : MonoBehaviour
         if (isFillingInProgress)
             yield break;
 
-        gridManager.IncrementTapEnabled();
-
         isFillingInProgress = true;
 
         // Find all empty cells that aren't blocked by obstacles
@@ -135,7 +133,6 @@ public class GridFiller : MonoBehaviour
         }
 
         isFillingInProgress = false;
-        gridManager.DecrementTapEnabled();
 
 
         // Inform MatchFinder that grid has been filled

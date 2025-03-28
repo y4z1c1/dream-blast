@@ -603,7 +603,6 @@ public class LevelController : MonoBehaviour
         {
             DebugLogWarning("Warning: matchFinder is null");
         }
-        gridManager.DecrementTapEnabled();
     }
 
     // check for empty cells and process falling if needed
