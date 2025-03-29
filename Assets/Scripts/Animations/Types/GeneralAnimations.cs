@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
-// general animations for common game elements not specific to a particular type
+// general animations for common game elements not specific to a particular type.
 public static class GeneralAnimations
 {
     private static AnimationManager animManager;
@@ -208,7 +208,7 @@ public static class GeneralAnimations
             .SetEase(Ease.Linear)
             .OnUpdate(() =>
             {
-                // Extra check if target was destroyed
+                // extra check if target was destroyed
                 if (itemTransform == null)
                 {
                     DOTween.Kill(itemTransform);
@@ -216,7 +216,7 @@ public static class GeneralAnimations
             })
             .OnKill(() =>
             {
-                // Set final position if killed
+                // set final position if killed
                 if (itemTransform != null)
                 {
                     itemTransform.position = targetPosition;
@@ -264,18 +264,18 @@ public static class GeneralAnimations
             onComplete?.Invoke();
         });
 
-        // Add safety for if sequence is killed
+        // safety for if sequence is killed
         moveSequence.OnKill(() =>
         {
             if (IsDebugEnabled()) Debug.Log($"[GeneralAnimations] Falling animation killed, invoking completion callback");
 
-            // Set final position if killed
+            // set final position if killed
             if (itemTransform != null)
             {
                 itemTransform.position = targetPosition;
             }
 
-            // Always invoke completion callback
+            // always invoke completion callback
             onComplete?.Invoke();
         });
     }
@@ -476,7 +476,7 @@ public static class GeneralAnimations
             return;
         }
 
-        // Kill any existing animations on this cube
+        // kill any existing animations on this cube
         if (cube.gameObject != null)
             KillAllTweens(cube.gameObject);
 
@@ -495,7 +495,7 @@ public static class GeneralAnimations
         // set initial position
         cube.transform.position = startPosition;
 
-        // Store references for safety in callbacks
+        // store references for safety in callbacks
         Transform cubeTransform = cube.transform;
         GameObject cubeObject = cube.gameObject;
 
@@ -506,7 +506,7 @@ public static class GeneralAnimations
         spawnSequence.SetAutoKill(true)
             .SetUpdate(UpdateType.Normal);
 
-        // optional: add an ID for better tracking
+        // ID for better tracking (debug purposes)
         spawnSequence.SetId("cubeSpawn_" + cube.GetInstanceID());
 
         // custom ease function for gravity - use callbacks instead
@@ -514,7 +514,7 @@ public static class GeneralAnimations
         spawnSequence.Append(
             DOTween.To(() => 0f, t =>
             {
-                // Skip update if cube was destroyed
+                // skip update if cube was destroyed
                 if (cubeTransform == null) return;
 
                 // use t^2 to simulate gravity acceleration
@@ -526,7 +526,7 @@ public static class GeneralAnimations
             .SetEase(Ease.Linear)
             .OnUpdate(() =>
             {
-                // Extra check if target was destroyed
+                // extra check if target was destroyed
                 if (cubeTransform == null)
                 {
                     DOTween.Kill(cubeTransform);
@@ -585,18 +585,18 @@ public static class GeneralAnimations
             spawnSequence.Kill();
         });
 
-        // Add safety for if sequence is killed
+        // add safety for if sequence is killed
         spawnSequence.OnKill(() =>
         {
             if (IsDebugEnabled()) Debug.Log($"[GeneralAnimations] Cube spawn animation killed, invoking completion callback");
 
-            // Set final state if killed
+            // set final state if killed
             if (cubeTransform != null)
             {
                 cubeTransform.position = targetPosition;
             }
 
-            // Always invoke completion callback
+            // always invoke completion callback
             onComplete?.Invoke();
         });
     }
@@ -617,8 +617,6 @@ public static class GeneralAnimations
             onComplete?.Invoke();
             return;
         }
-
-
 
         // apply animation speed multiplier
         float speedMultiplier = animManager.GetAnimationSpeed();

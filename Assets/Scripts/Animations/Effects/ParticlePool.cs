@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// particle pool is a pool of particle systems that can be used to create particle effects.
 public class ParticlePool : MonoBehaviour
 {
     private ParticleSystem prefab;
@@ -9,15 +10,15 @@ public class ParticlePool : MonoBehaviour
     private List<ParticleSystem> activeParticles = new List<ParticleSystem>();
     private Transform poolParent;
     private string poolName;
-    private bool loggingEnabled = false;
+    private bool debugMode = false;
 
     // initialize the pool
-    public void Initialize(ParticleSystem prefab, int initialSize, Transform parent, bool enableLogging = false)
+    public void Initialize(ParticleSystem prefab, int initialSize, Transform parent, bool enableDebugMode = false)
     {
         this.prefab = prefab;
         this.poolParent = parent;
         this.poolName = prefab != null ? prefab.name : "Unknown";
-        this.loggingEnabled = enableLogging;
+        this.debugMode = enableDebugMode;
 
         // create initial particles
         for (int i = 0; i < initialSize; i++)
@@ -42,7 +43,7 @@ public class ParticlePool : MonoBehaviour
         // add to inactive queue
         inactiveParticles.Enqueue(newParticle);
 
-        if (loggingEnabled)
+        if (debugMode)
             Debug.Log($"[POOL] Created new particle for {poolName} pool");
     }
 
@@ -52,7 +53,7 @@ public class ParticlePool : MonoBehaviour
         // if no inactive particles, create a new one
         if (inactiveParticles.Count == 0)
         {
-            if (loggingEnabled)
+            if (debugMode)
                 Debug.LogWarning($"[POOL] Pool limit reached for '{poolName}' - expanding beyond initial size. Current size: {activeParticles.Count}");
 
             CreateParticle();
@@ -118,9 +119,9 @@ public class ParticlePool : MonoBehaviour
     }
 
     // set logging state
-    public void SetLogging(bool enabled)
+    public void SetDebugMode(bool enabled)
     {
-        loggingEnabled = enabled;
+        debugMode = enabled;
     }
 
     // get the total count of particles in the pool (active + inactive)
@@ -134,7 +135,7 @@ public class ParticlePool : MonoBehaviour
     {
         if (additionalParticles <= 0) return;
 
-        if (loggingEnabled)
+        if (debugMode)
             Debug.Log($"[POOL] Expanding {poolName} pool by {additionalParticles} particles");
 
         for (int i = 0; i < additionalParticles; i++)

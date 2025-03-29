@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// particle manager manages all particle effects in the game by using a pool system.
 public class ParticleManager : MonoBehaviour
 {
     private Dictionary<string, ParticlePool> particlePools = new Dictionary<string, ParticlePool>();
@@ -25,7 +26,7 @@ public class ParticleManager : MonoBehaviour
     [SerializeField] private bool logParticleUsage = false;
     [SerializeField] private bool monitorPoolSizes = true;
 
-    // store max usage for reporting
+    // store max usage for reporting, for optimization purposes
     private Dictionary<string, int> maxPoolUsage = new Dictionary<string, int>();
 
     private void Awake()
@@ -92,6 +93,7 @@ public class ParticleManager : MonoBehaviour
         if (particleInstance == null)
         {
             Debug.LogWarning($"Failed to get particle from pool: {effectName}");
+
             // auto-resize the pool by doubling its size
             int currentSize = particlePools[effectName].GetTotalCount();
             int newSize = currentSize * 2;
@@ -219,7 +221,7 @@ public class ParticleManager : MonoBehaviour
         // update logging in pool objects
         foreach (var pool in particlePools.Values)
         {
-            pool.SetLogging(enabled);
+            pool.SetDebugMode(enabled);
         }
     }
 

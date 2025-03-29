@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// level data is a simple class that represents the data for a level.
 [System.Serializable]
 public class LevelData
 {

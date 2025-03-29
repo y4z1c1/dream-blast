@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using DG.Tweening;
 
+// cube is a class that represents a cube in the grid.
+
 [RequireComponent(typeof(SpriteRenderer))]
 public class Cube : GridItem
 {
@@ -51,20 +53,6 @@ public class Cube : GridItem
         }
     }
 
-    private void OnDestroy()
-    {
-
-    }
-
-    private void OnDisable()
-    {
-
-    }
-
-    private void OnEnable()
-    {
-
-    }
 
     private void OnMouseDown()
     {
@@ -238,6 +226,7 @@ public class Cube : GridItem
     }
 
 
+    // print all attributes for debugging
     [ContextMenu("Print All Attributes")]
     public void PrintAllAttributes()
     {

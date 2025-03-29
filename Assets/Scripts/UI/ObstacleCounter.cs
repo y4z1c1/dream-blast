@@ -4,6 +4,7 @@ using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 
+// obstacle counter ui is a class that represents the obstacle counter in the game.
 public class ObstacleCounterUI : MonoBehaviour
 {
     [System.Serializable]
@@ -19,6 +20,7 @@ public class ObstacleCounterUI : MonoBehaviour
     [Header("Obstacle Counters")]
     [SerializeField] private List<ObstacleCounter> counters = new List<ObstacleCounter>();
 
+    // layout settings in order to make the counter look good
     [Header("Layout Settings")]
     [SerializeField] private float scaleTwoOrLess = 0.03f;
     [SerializeField] private float scaleThree = 0.02f;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+// match finder is a class that handles the finding of matches in the grid.
 public class MatchFinder : MonoBehaviour
 {
     // reference to the grid manager
@@ -16,7 +17,7 @@ public class MatchFinder : MonoBehaviour
 
     // minimum number of matching cubes required
     [SerializeField] private int minMatchCount = 2;
-    [SerializeField] private int rocketMatchCount = 4; // minimum count needed for a rocket match
+    [SerializeField] private int rocketMatchCount = 4;
 
     // time to wait after setting rocket indicators before scanning again
     [SerializeField] private float indicatorAnimationDelay = 0.3f;
@@ -101,34 +102,30 @@ public class MatchFinder : MonoBehaviour
         }
     }
 
-    // Event handler for when falling creates empty spaces
+    // event handler for when falling creates empty spaces
     private void OnEmptySpacesReady(Dictionary<int, int> emptySpacesPerColumn)
     {
 
 
-        // Fill the empty spaces immediately - don't wait for falling to complete
+        // fill the empty spaces immediately - don't wait for falling to complete
         if (gridFiller != null && emptySpacesPerColumn.Count > 0)
         {
             StartCoroutine(gridFiller.FillSpecificEmptyCells(emptySpacesPerColumn));
         }
-        else
-        {
-            // No spaces to fill, just scan for matches when falling completes
-            // This will happen through the fallingController's ProcessFalling completion
-        }
+
     }
 
-    // Event handler for when grid filling is complete
+    // event handler for when grid filling is complete
     private void OnFillingComplete()
     {
-        // Check if we can scan for matches (both falling and filling must be done)
+        // check if we can scan for matches (both falling and filling must be done)
         CheckForScanReady();
     }
 
-    // Check if we're ready to scan for matches
+    // check if we're ready to scan for matches
     private void CheckForScanReady()
     {
-        // Only scan if all animations are complete (falling, filling, and rockets)
+        // only scan if all animations are complete (falling, filling, and rockets)
         if (fallingController != null && gridFiller != null && animationManager != null)
         {
             if (!fallingController.HasActiveAnimations() &&
@@ -141,7 +138,7 @@ public class MatchFinder : MonoBehaviour
         }
         else
         {
-            // If any controller isn't available, proceed with what we have
+            // if any controller isn't available, proceed with what we have
             ScanGridForMatches();
         }
     }
@@ -166,7 +163,7 @@ public class MatchFinder : MonoBehaviour
         // add the starting cube to matches
         matchedCubes.Add(startCube);
 
-        // start breadth-first search
+        // start bfs
         Queue<Vector2Int> positionsToCheck = new Queue<Vector2Int>();
         positionsToCheck.Enqueue(startPos);
         visitedPositions.Add(startPos);
@@ -278,7 +275,7 @@ public class MatchFinder : MonoBehaviour
                         processedPositions.Add(matchCube.GetGridPosition());
                     }
 
-                    // Set rocket indicator ONLY if group has 4+ cubes
+                    // set rocket indicator ONLY if group has 4+ cubes
                     if (matches.Count >= rocketMatchCount)
                     {
                         UpdateRocketIndicatorsForGroup(matchGroup);
@@ -300,14 +297,12 @@ public class MatchFinder : MonoBehaviour
 
     }
 
-    // Update rocket indicators for a match group based on its size
+    // update rocket indicators for a match group based on its size
     private void UpdateRocketIndicatorsForGroup(MatchGroup matchGroup)
     {
         if (matchGroup == null)
             return;
 
-        // We're only calling this method for groups with size >= rocketMatchCount
-        // So we always want to show the indicator
         matchGroup.SetRocketIndicator(true);
     }
 
@@ -327,40 +322,40 @@ public class MatchFinder : MonoBehaviour
         return null;
     }
 
-    // Process a match when player taps a cube
+    // process a match when player taps a cube
     public bool ProcessMatch(Vector2Int tapPosition)
     {
-        // Cache tap position for invalid move handling
+        // cache tap position for invalid move handling
         lastTapPosition = tapPosition;
 
-        // Prevent multiple simultaneous matches
+        // prevent multiple simultaneous matches
         if (isProcessing)
         {
-            DebugLog($"Ignoring tap at {tapPosition} - already processing a match");
+            DebugLog($"ignoring tap at {tapPosition} - already processing a match");
             return false;
         }
 
-        // Start processing - set flag early to prevent race conditions
+        // start processing - set flag early to prevent race conditions
         isProcessing = true;
 
         DebugLog($"Processing match at position {tapPosition}");
 
-        // Get the match group at this position (null if no match)
+        // get the match group at this position (null if no match)
         MatchGroup matchGroup = GetMatchAtPosition(tapPosition);
 
-        // Handle invalid move if no match
+        // handle invalid move if no match
         if (matchGroup == null)
         {
-            DebugLog($"No match found at position {tapPosition}");
+            DebugLog($"no match found at position {tapPosition}");
             OnInvalidMove();
             isProcessing = false;
             return false;
         }
 
-        // Set the clicked position in the match group (for rocket creation)
+        // set the clicked position in the match group (for rocket creation)
         matchGroup.ClickedPosition = tapPosition;
 
-        // Determine if we should create a rocket based on match length
+        // determine if we should create a rocket based on match length
         bool createRocket = matchGroup.MatchLength >= rocketMatchCount;
 
         if (createRocket)
@@ -372,7 +367,7 @@ public class MatchFinder : MonoBehaviour
             DebugLog($"Valid match with {matchGroup.MatchLength} cubes");
         }
 
-        // Start processing the match
+        // start processing the match
         StartCoroutine(ProcessMatchSequence(matchGroup, createRocket));
 
         return true;
@@ -383,13 +378,13 @@ public class MatchFinder : MonoBehaviour
         DebugLog($"Starting match sequence with {matchGroup.MatchLength} cubes (createRocket={createRocket})");
 
 
-        // Process the destruction with animation
+        // process the destruction with animation
         List<Vector2Int> affectedPositions = matchGroup.ProcessDestruction(createRocket);
 
 
         DebugLog($"Match destruction processed, affecting {affectedPositions.Count} positions");
 
-        // Check effects on obstacles without waiting for animation to complete
+        // check effects on obstacles without waiting for animation to complete
         if (levelController != null)
         {
             levelController.CheckMatchEffectOnObstacles(affectedPositions);
@@ -407,7 +402,7 @@ public class MatchFinder : MonoBehaviour
             yield return new WaitForSeconds(animationManager.GetRocketCreateDuration());
         }
 
-        // Notify level controller about match completion
+        // notify level controller about match completion
         if (levelController != null)
         {
             levelController.OnMatchProcessed(matchGroup.MatchLength);
@@ -417,12 +412,12 @@ public class MatchFinder : MonoBehaviour
             DebugLogWarning("LevelController is null, cannot process match completion");
         }
 
-        // Remove this match from our list
+        // remove this match from our list
         potentialMatches.Remove(matchGroup);
 
         DebugLog("Match processing completed");
 
-        // Now processing is complete, allow new matches
+        // now processing is complete, allow new matches
         isProcessing = false;
     }
 
@@ -455,13 +450,12 @@ public class MatchFinder : MonoBehaviour
         StartCoroutine(DelayedScanAfterIndicatorReset());
     }
 
-    // Allow time for indicator animations to complete before further operations
+    // allow time for indicator animations to complete before further operations
     private IEnumerator DelayedScanAfterIndicatorReset()
     {
-        // Wait for indicator animations to finish
+        // wait for indicator animations to finish
         yield return new WaitForSeconds(indicatorAnimationDelay);
 
-        // Any additional post-reset operations could go here
     }
 
     // set the grid manager reference
@@ -475,21 +469,21 @@ public class MatchFinder : MonoBehaviour
     {
         DebugLog($"Invalid move detected at position {lastTapPosition}");
 
-        // Skip if invalid move animations are disabled
+        // skip if invalid move animations are disabled
         if (!enableInvalidMoveAnimation)
         {
-            DebugLog("Invalid move animation skipped (disabled in settings)");
+            DebugLog("invalid move animation skipped (disabled in settings)");
             return;
         }
 
-        // Skip if no grid manager
+        // skip if no grid manager
         if (gridManager == null)
         {
-            DebugLogWarning("Cannot animate invalid move: GridManager is null");
+            DebugLogWarning("cannot animate invalid move: grid manager is null");
             return;
         }
 
-        // Get the cube from last tap position
+        // get the cube from last tap position
         Cube cube = GetCubeAtPosition(lastTapPosition);
         if (cube == null)
         {
@@ -497,26 +491,26 @@ public class MatchFinder : MonoBehaviour
             return;
         }
 
-        // Check if cube is on cooldown
+        // check if cube is on cooldown
         if (!cube.CanPlayInvalidMoveAnimation())
         {
-            DebugLog($"Skipping invalid move animation: cube is on cooldown");
+            DebugLog($"skipping invalid move animation: cube is on cooldown");
             return;
         }
 
-        // Skip if no animation manager
+        // skip if no animation manager
         if (animationManager == null)
         {
-            DebugLogWarning("Cannot animate invalid move: AnimationManager is null");
+            DebugLogWarning("cannot animate invalid move: animation manager is null");
             return;
         }
 
         DebugLog($"Playing invalid move animation for cube at {lastTapPosition} (duration={invalidMoveDuration}, strength={invalidMoveStrength})");
 
-        // Mark animation as played on the cube
+        // mark animation as played on the cube
         cube.MarkInvalidMovePlayed();
 
-        // Use configurable animation parameters
+        // use configurable animation parameters
         animationManager.AnimateInvalidMove(cube, invalidMoveDuration, invalidMoveStrength);
     }
 }

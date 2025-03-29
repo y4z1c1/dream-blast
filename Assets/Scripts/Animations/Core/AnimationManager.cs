@@ -5,6 +5,8 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 
+
+// animation manager abstracts all animations to be used in other scripts.
 public class AnimationManager : MonoBehaviour
 {
     // singleton instance
@@ -145,10 +147,6 @@ public class AnimationManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private ParticleManager particleManager;
 
-    [SerializeField] private float destructionAnimHalfwayDelay = 0.15f; // estimated time to reach halfway point in destruction animation
-    [SerializeField] private bool animateCubeDestroy = true;
-
-    private bool isDestroying = false;
     private int activeRocketAnimationCount = 0; // track active rocket animations
 
     private void Awake()
@@ -157,7 +155,7 @@ public class AnimationManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // make the animationmanager persist across scenes
+            DontDestroyOnLoad(gameObject);
             if (debugMode) Debug.Log("[AnimationManager] Instance created and set to persist");
 
             // set dotween capacity to a higher value to handle many concurrent animations
@@ -204,9 +202,6 @@ public class AnimationManager : MonoBehaviour
     {
         animationsEnabled = enabled;
         if (debugMode) Debug.Log($"[AnimationManager] Animations {(enabled ? "enabled" : "disabled")}");
-
-        // If disabling all animations, no need to check individual types
-        // If enabling animations, individual toggles retain their previous state
     }
 
     // check if animations are enabled
@@ -427,8 +422,6 @@ public class AnimationManager : MonoBehaviour
     {
         if (cube == null) yield break;
 
-        isDestroying = true;
-
         // disable cube interactions while animating
         cube.enabled = false;
 
@@ -461,7 +454,6 @@ public class AnimationManager : MonoBehaviour
             if (debugMode) Debug.Log("[AnimationManager] Cube destroyed successfully");
         }
 
-        isDestroying = false;
     }
 
     // animate falling item
@@ -570,15 +562,6 @@ public class AnimationManager : MonoBehaviour
         GeneralAnimations.PlayCubeSpawnAnimation(cube, startPosition, targetPosition, onComplete);
     }
 
-    // signal that other operations can start after destruction has progressed somewhat
-    public IEnumerator WaitForDestructionHalfway()
-    {
-        if (isDestroying)
-        {
-            // wait for estimated halfway point of destruction animation
-            yield return new WaitForSeconds(destructionAnimHalfwayDelay);
-        }
-    }
 
     // animate cubes combining into a rocket
     public void AnimateRocketCombine(List<Cube> cubes, Vector2Int targetPosition)
@@ -829,7 +812,6 @@ public class AnimationManager : MonoBehaviour
 
     private IEnumerator AnimateRocketCombineRoutine(List<Cube> cubes, Vector2Int targetPosition)
     {
-        isDestroying = true;
 
         // run the combine animation
         bool animationSucceeded = false;
@@ -856,7 +838,6 @@ public class AnimationManager : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
 
 
-        isDestroying = false;
     }
 
     // animate rocket explosion at a specific position
@@ -936,7 +917,7 @@ public class AnimationManager : MonoBehaviour
 
         if (debugMode) Debug.Log("[AnimationManager] Starting rocket combine special animation");
 
-        // Use the original onComplete callback without decrementing
+        // delegate to RocketAnimations
         RocketAnimations.PlayRocketCombineSpecialAnimation(rockets, targetPosition, onComplete);
     }
 
@@ -974,7 +955,7 @@ public class AnimationManager : MonoBehaviour
 
         if (debugMode) Debug.Log("[AnimationManager] Starting rocket combination animation");
 
-        // Use the original onComplete callback without decrementing
+        // delegate to RocketAnimations
         RocketAnimations.AnimateRocketCombination(rocketPosition, gridManager, paths, onHitPosition, onComplete);
     }
 
@@ -1063,7 +1044,6 @@ public class AnimationManager : MonoBehaviour
     // animate level button appearing from bottom
     public void AnimateLevelButtonAppearance(Transform buttonTransform, float duration = 0.6f, float offset = 8f, System.Action onComplete = null)
     {
-        // Only run if UI animations are enabled
         if (!AreUIAnimationsEnabled())
         {
             onComplete?.Invoke();
@@ -1087,7 +1067,6 @@ public class AnimationManager : MonoBehaviour
     // animate the level button exiting downwards
     public void AnimateLevelButtonExit(Transform buttonTransform, float duration = 0.5f, float offset = 100f, System.Action onComplete = null)
     {
-        // Only run if UI animations are enabled
         if (!AreUIAnimationsEnabled())
         {
             onComplete?.Invoke();

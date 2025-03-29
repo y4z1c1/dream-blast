@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 
+// match group is a data structure that represents a group of cubes that match.
+// it contains the cubes that are part of the match, the color of the match, and the position of the first cube in the match.
 public class MatchGroup
 {
     public List<Cube> MatchedCubes { get; private set; }
@@ -27,7 +29,7 @@ public class MatchGroup
         // this is a safety check in case this method is called incorrectly
         if (show && !IsRocketMatch)
         {
-            Debug.LogWarning($"Attempted to show rocket indicator for a group with only {MatchLength} cubes (needs 4+)");
+            Debug.LogWarning($"[MatchGroup] Attempted to show rocket indicator for a group with only {MatchLength} cubes (needs 4+)");
             return;
         }
 
@@ -50,7 +52,7 @@ public class MatchGroup
         {
             if (cube != null && !cube.CanInteract)
             {
-                Debug.LogWarning($"Cannot process destruction - cube at {cube.GetGridPosition()} cannot interact");
+                Debug.LogWarning($"[MatchGroup] Cannot process destruction - cube at {cube.GetGridPosition()} cannot interact");
                 return new List<Vector2Int>();
             }
         }

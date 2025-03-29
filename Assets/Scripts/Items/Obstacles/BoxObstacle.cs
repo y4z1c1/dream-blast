@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+// box obstacle is a class that represents a box obstacle in the grid.
 public class BoxObstacle : Obstacle
 {
     [Header("Box Specific Settings")]
@@ -39,7 +40,7 @@ public class BoxObstacle : Obstacle
         return TakeDamage(1);
     }
 
-    // Override to provide box-specific behavior for rocket damage
+    // override to provide box-specific behavior for rocket damage
     public override bool TakeDamageFromRocket()
     {
         // boxes take full damage from rockets

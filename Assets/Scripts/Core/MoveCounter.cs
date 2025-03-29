@@ -1,11 +1,11 @@
 using UnityEngine;
 using TMPro;
 
+// move counter is a simple class that handles the display of the move counter ui.
 public class MoveCounter : MonoBehaviour
 {
     // reference to ui text component that displays moves
     [SerializeField] private TextMeshProUGUI moveText;
-    // maximum number of moves allowed
     [SerializeField] private int maxMoves = 15;
 
     // current number of moves remaining

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
+// grid filler is a class that handles the spawning new cubes and filling of the grid.
 public class GridFiller : MonoBehaviour
 {
     [Header("References")]
@@ -39,15 +40,15 @@ public class GridFiller : MonoBehaviour
         return activeAnimationCount > 0;
     }
 
-    // Calculate spawn height based on grid's top row position
+    // calculate spawn height based on grid's top row position
     private float CalculateMinSpawnHeight()
     {
-        // Get the top row's y-position in world space
+        // get the top row's y-position in world space
         float topRowY = 0;
 
         if (gridManager != null && gridManager.GetHeight() > 0)
         {
-            // Get a cell from the top row
+            // get a cell from the top row
             GridCell topCell = gridManager.GetCell(0, gridManager.GetHeight() - 1);
             if (topCell != null)
             {
@@ -55,11 +56,11 @@ public class GridFiller : MonoBehaviour
             }
         }
 
-        // Add offset to position cubes above the grid
+        // add offset to position cubes above the grid
         return topRowY + spawnHeightOffset;
     }
 
-    // Fill all empty cells in the grid, spawning one row at a time starting from the bottom
+    // fill all empty cells in the grid, spawning one row at a time starting from the bottom
     public IEnumerator FillEmptyCells()
     {
 
@@ -68,21 +69,21 @@ public class GridFiller : MonoBehaviour
 
         isFillingInProgress = true;
 
-        // Find all empty cells that aren't blocked by obstacles
+        // find all empty cells that aren't blocked by obstacles
         Dictionary<int, List<GridCell>> emptyCellsByColumn = FindAllEmptyCells();
 
-        // Find maximum number of cells to fill in any column
+        // find maximum number of cells to fill in any column
         int maxEmptyCells = 0;
         foreach (var kvp in emptyCellsByColumn)
         {
             maxEmptyCells = Mathf.Max(maxEmptyCells, kvp.Value.Count);
         }
 
-        // Calculate min spawn height once
+        // calculate min spawn height once
         float minSpawnHeight = CalculateMinSpawnHeight();
 
-        // Organize cells by their vertical position in their respective columns
-        // This is to ensure we spawn cells row by row starting from the bottom
+        // organize cells by their vertical position in their respective columns
+        // this is to ensure we spawn cells row by row starting from the bottom
         Dictionary<int, Dictionary<int, GridCell>> cellsByRowFromBottom = new Dictionary<int, Dictionary<int, GridCell>>();
 
         foreach (var kvp in emptyCellsByColumn)
@@ -90,15 +91,15 @@ public class GridFiller : MonoBehaviour
             int columnX = kvp.Key;
             List<GridCell> columnCells = kvp.Value;
 
-            // For each cell in this column, determine its vertical position from the bottom
+            // for each cell in this column, determine its vertical position from the bottom
             for (int i = 0; i < columnCells.Count; i++)
             {
                 GridCell cell = columnCells[i];
 
-                // Determine the row index from bottom (0 is the bottommost empty cell in this column)
+                // determine the row index from bottom (0 is the bottommost empty cell in this column)
                 int rowFromBottom = columnCells.Count - 1 - i;
 
-                // Add to the appropriate row dictionary
+                // add to the appropriate row dictionary
                 if (!cellsByRowFromBottom.ContainsKey(rowFromBottom))
                 {
                     cellsByRowFromBottom[rowFromBottom] = new Dictionary<int, GridCell>();
@@ -108,34 +109,34 @@ public class GridFiller : MonoBehaviour
             }
         }
 
-        // Now spawn row by row, starting from the bottom (row 0)
+        // now spawn row by row, starting from the bottom (row 0)
         for (int rowFromBottom = 0; rowFromBottom < maxEmptyCells; rowFromBottom++)
         {
             if (!cellsByRowFromBottom.ContainsKey(rowFromBottom))
                 continue;
 
-            // Calculate spawn height for this row
+            // calculate spawn height for this row
             float spawnHeight = minSpawnHeight + (rowFromBottom * rowSpacing);
 
-            // Spawn all cubes in this row at the same time
+            // spawn all cubes in this row at the same time
             foreach (var cellKvp in cellsByRowFromBottom[rowFromBottom])
             {
                 int columnX = cellKvp.Key;
                 GridCell cell = cellKvp.Value;
                 Vector2Int cellPos = cell.GetCoordinates();
 
-                // Spawn cube at the calculated height for this row
+                // spawn cube at the calculated height for this row
                 SpawnCubeForCell(cell, cellPos.x, cellPos.y, spawnHeight);
             }
 
-            // Wait a bit before spawning the next row
+            // wait a bit before spawning the next row
             yield return new WaitForSeconds(0.15f);
         }
 
         isFillingInProgress = false;
 
 
-        // Inform MatchFinder that grid has been filled
+        // inform match finder that grid has been filled
         if (matchFinder != null)
         {
             matchFinder.ScanGridForMatches();
@@ -144,7 +145,7 @@ public class GridFiller : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
     }
 
-    // Fill specific empty cells, spawning one row at a time starting from the bottom
+    // fill specific empty cells, spawning one row at a time starting from the bottom
     public IEnumerator FillSpecificEmptyCells(Dictionary<int, int> emptySpacesPerColumn)
     {
         if (isFillingInProgress)
@@ -152,20 +153,20 @@ public class GridFiller : MonoBehaviour
 
         isFillingInProgress = true;
 
-        // Find cells blocked by obstacles
+        // find cells blocked by obstacles
         HashSet<Vector2Int> blockedCells = FindCellsBlockedByObstacles();
 
-        // Find maximum number of cells to fill in any column
+        // find maximum number of cells to fill in any column
         int maxEmptyCells = 0;
         foreach (var kvp in emptySpacesPerColumn)
         {
             maxEmptyCells = Mathf.Max(maxEmptyCells, kvp.Value);
         }
 
-        // Calculate min spawn height once
+        // calculate min spawn height once
         float minSpawnHeight = CalculateMinSpawnHeight();
 
-        // First, collect all cells we need to fill
+        // first, collect all cells we need to fill
         Dictionary<int, Dictionary<int, List<GridCell>>> cellsByColumn = new Dictionary<int, Dictionary<int, List<GridCell>>>();
 
         foreach (var kvp in emptySpacesPerColumn)
@@ -189,7 +190,7 @@ public class GridFiller : MonoBehaviour
                             cellsByColumn[columnX] = new Dictionary<int, List<GridCell>>();
                         }
 
-                        // Store this cell in a list for its column, where the key is the depth from top
+                        // store this cell in a list for its column, where the key is the depth from top
                         if (!cellsByColumn[columnX].ContainsKey(i))
                         {
                             cellsByColumn[columnX][i] = new List<GridCell>();
@@ -201,7 +202,7 @@ public class GridFiller : MonoBehaviour
             }
         }
 
-        // Reorganize cells by row from bottom
+        // reorganize cells by row from bottom
         Dictionary<int, Dictionary<int, GridCell>> cellsByRowFromBottom = new Dictionary<int, Dictionary<int, GridCell>>();
 
         foreach (var columnKvp in cellsByColumn)
@@ -209,25 +210,25 @@ public class GridFiller : MonoBehaviour
             int columnX = columnKvp.Key;
             var depthMap = columnKvp.Value;
 
-            // Count total cells in this column
+            // count total cells in this column
             int totalCellsInColumn = 0;
             foreach (var depthKvp in depthMap)
             {
                 totalCellsInColumn += depthKvp.Value.Count;
             }
 
-            // Now map each cell to its position from bottom
+            // now map each cell to its position from bottom
             int currentPositionFromBottom = 0;
 
-            // Start from the bottom of the grid (highest depth value)
+            // start from the bottom of the grid (highest depth value)
             List<int> depthKeys = new List<int>(depthMap.Keys);
-            depthKeys.Sort((a, b) => b.CompareTo(a)); // Sort descending
+            depthKeys.Sort((a, b) => b.CompareTo(a)); // sort descending
 
             foreach (int depth in depthKeys)
             {
                 foreach (GridCell cell in depthMap[depth])
                 {
-                    // Add this cell to the appropriate row from bottom
+                    // add this cell to the appropriate row from bottom
                     if (!cellsByRowFromBottom.ContainsKey(currentPositionFromBottom))
                     {
                         cellsByRowFromBottom[currentPositionFromBottom] = new Dictionary<int, GridCell>();
@@ -239,48 +240,48 @@ public class GridFiller : MonoBehaviour
             }
         }
 
-        // Now spawn row by row, starting from the bottom (row 0)
+        // now spawn row by row, starting from the bottom (row 0)
         for (int rowFromBottom = 0; rowFromBottom < maxEmptyCells; rowFromBottom++)
         {
             if (!cellsByRowFromBottom.ContainsKey(rowFromBottom))
                 continue;
 
-            // Calculate spawn height for this row
+            // calculate spawn height for this row
             float spawnHeight = minSpawnHeight + (rowFromBottom * rowSpacing);
 
-            // Spawn all cubes in this row at the same time
+            // spawn all cubes in this row at the same time
             foreach (var cellKvp in cellsByRowFromBottom[rowFromBottom])
             {
                 int columnX = cellKvp.Key;
                 GridCell cell = cellKvp.Value;
                 Vector2Int cellPos = cell.GetCoordinates();
 
-                // Spawn cube at the calculated height for this row
+                // spawn cube at the calculated height for this row
                 SpawnCubeForCell(cell, cellPos.x, cellPos.y, spawnHeight);
             }
 
-            // Wait a bit before spawning the next row
+            // wait a bit before spawning the next row
             yield return new WaitForSeconds(0.05f);
         }
 
         isFillingInProgress = false;
 
-        // Inform MatchFinder that grid has been filled
+        // inform match finder that grid has been filled
         if (matchFinder != null)
         {
             matchFinder.ScanGridForMatches();
         }
     }
 
-    // Find all empty cells in the grid, grouped by column
+    // find all empty cells in the grid, grouped by column
     private Dictionary<int, List<GridCell>> FindAllEmptyCells()
     {
         Dictionary<int, List<GridCell>> emptyCellsByColumn = new Dictionary<int, List<GridCell>>();
 
-        // Get cells blocked by obstacles
+        // get cells blocked by obstacles
         HashSet<Vector2Int> blockedCells = FindCellsBlockedByObstacles();
 
-        // Collect valid empty cells (non-blocked)
+        // collect valid empty cells (non-blocked)
         for (int x = 0; x < gridManager.GetWidth(); x++)
         {
             int emptyInColumn = 0;
@@ -296,7 +297,7 @@ public class GridFiller : MonoBehaviour
 
                     if (!isBlocked)
                     {
-                        // Add to column list
+                        // add to column list
                         if (!emptyCellsByColumn.ContainsKey(x))
                         {
                             emptyCellsByColumn[x] = new List<GridCell>();
@@ -308,50 +309,47 @@ public class GridFiller : MonoBehaviour
                 }
             }
 
-            if (emptyInColumn > 0)
-            {
-                Debug.Log($"Column {x} has {emptyInColumn} cells to fill with new cubes");
-            }
         }
 
         return emptyCellsByColumn;
     }
 
-    // Spawn a cube for a cell 
+    // spawn a cube for a cell at a specific height
     private Cube SpawnCubeForCell(GridCell cell, int x, int y, float spawnHeight)
     {
         if (cubePrefabs.Length == 0)
             return null;
 
-        // Choose a random cube prefab
+        // choose a random cube prefab
         int randomIndex = Random.Range(0, cubePrefabs.Length);
         GameObject cubePrefab = cubePrefabs[randomIndex];
 
-        // Get the exact cell position
+        // get the exact cell position
         Vector3 cellPosition = cell.transform.position;
 
-        // Set a start position using the passed spawn height
-        // Use the cell's x position but the consistent spawn height
+        // set a start position using the passed spawn height
+        // use the cell's x position but the consistent spawn height
         Vector3 startPosition = new Vector3(cellPosition.x, spawnHeight, cellPosition.z);
 
-        // Instantiate the cube
+        // instantiate the cube
         GameObject cubeObject = Instantiate(cubePrefab, startPosition, Quaternion.identity);
         Cube cube = cubeObject.GetComponent<Cube>();
+        cubeObject.transform.SetParent(cell.transform.parent);
 
         if (cube != null)
         {
-            // Get cube color from prefab or set a random one
+            // get cube color from prefab or set a random one
             Cube.CubeColor cubeColor = GetCubeColorFromPrefab(cubePrefab, randomIndex);
 
-            // Set up the cube with position and color
+            // set up the cube with position and color
             cube.Initialize(x, y, cubeColor, gridManager, matchFinder);
 
-            // Set cube in the cell
+            // set cube in the cell
             cell.SetItem(cube);
 
             cube.SetCanInteract(false);
 
-            // Animate the cube falling to its target position using animation manager
+            // animate the cube falling to its target position using animation manager
             animateSpawnedCube(cube, startPosition, cellPosition);
 
             return cube;
@@ -360,31 +358,30 @@ public class GridFiller : MonoBehaviour
         return null;
     }
 
-    // Animate cube falling to target position through animation manager
+    // animate cube falling to target position through animation manager
     private void animateSpawnedCube(Cube cube, Vector3 startPosition, Vector3 targetPosition)
     {
-        Debug.Log("Animating cube spawn");
 
-        // Increment active animation count
+        // increment active animation count
         activeAnimationCount++;
 
         if (animationManager != null)
         {
-            // Use animation manager to handle the animation
+            // use animation manager to handle the animation
             animationManager.AnimateCubeSpawn(
                 cube,
                 startPosition,
                 targetPosition,
                 () =>
                 {
-                    // Mark cube as ready when animation completes
+                    // mark cube as ready when animation completes
                     cube.SetCanInteract(true);
-                    activeAnimationCount--; // Decrement active animation count
+                    activeAnimationCount--; // decrement active animation count
 
-                    // Check if all animations are complete
+                    // check if all animations are complete
                     if (activeAnimationCount <= 0 && !isFillingInProgress)
                     {
-                        // Small delay to ensure synchronization with other systems
+                        // small delay to ensure synchronization with other systems
                         DOTween.Sequence().AppendInterval(0.05f).OnComplete(() =>
                         {
                             OnFillingComplete?.Invoke();
@@ -395,12 +392,12 @@ public class GridFiller : MonoBehaviour
         }
         else
         {
-            // Fallback if animation manager is not available
+            // fallback if animation manager is not available
             cube.transform.position = targetPosition;
             cube.SetCanInteract(true);
             activeAnimationCount--;
 
-            // Check if all animations are complete
+            // check if all animations are complete
             if (activeAnimationCount <= 0 && !isFillingInProgress)
             {
                 OnFillingComplete?.Invoke();
@@ -408,17 +405,17 @@ public class GridFiller : MonoBehaviour
         }
     }
 
-    // Helper to get cube color from prefab
+    // helper to get cube color from prefab
     private Cube.CubeColor GetCubeColorFromPrefab(GameObject prefab, int prefabIndex)
     {
-        // Try to get color from prefab
+        // try to get color from prefab
         Cube prefabCube = prefab.GetComponent<Cube>();
         if (prefabCube != null)
         {
             return prefabCube.GetColor();
         }
 
-        // Fallback to index-based color
+        // fallback to index-based color
         switch (prefabIndex % 4)
         {
             case 0: return Cube.CubeColor.Red;
@@ -429,18 +426,18 @@ public class GridFiller : MonoBehaviour
         }
     }
 
-    // Helper method to find cells that are blocked by obstacles
+    // helper method to find cells that are blocked by obstacles
     private HashSet<Vector2Int> FindCellsBlockedByObstacles()
     {
-        // All cells start as potentially fillable
+        // all cells start as potentially fillable
         HashSet<Vector2Int> blockedCells = new HashSet<Vector2Int>();
 
-        // Process each column top to bottom
+        // process each column top to bottom
         for (int x = 0; x < gridManager.GetWidth(); x++)
         {
             bool blockingObstacleFound = false;
 
-            // Scan from top to bottom
+            // scan from top to bottom
             for (int y = gridManager.GetHeight() - 1; y >= 0; y--)
             {
                 GridCell cell = gridManager.GetCell(x, y);
@@ -450,14 +447,14 @@ public class GridFiller : MonoBehaviour
                 {
                     GridItem item = cell.GetItem();
 
-                    // If we encounter a non-moving obstacle, mark all cells below as blocked
+                    // if we encounter a non-moving obstacle, mark all cells below as blocked
                     if (item is Obstacle && !(item is VaseObstacle))
                     {
                         blockingObstacleFound = true;
                     }
                 }
 
-                // If we've found a blocking obstacle and this cell is empty, mark it as blocked
+                // if we've found a blocking obstacle and this cell is empty, mark it as blocked
                 if (blockingObstacleFound && cell.IsEmpty())
                 {
                     blockedCells.Add(new Vector2Int(x, y));

@@ -1,11 +1,12 @@
 using UnityEngine;
 
+// header is a class that represents the header of the game.
 public class Header : MonoBehaviour
 {
     private AnimationManager animationManager;
     private bool hasAnimated = false;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // start is called once before the first execution of update after the monobehaviour is created
     void Start()
     {
         // get animation manager reference
@@ -28,7 +29,7 @@ public class Header : MonoBehaviour
     private void AnimateAppearance()
     {
         // use animation manager if available
-        if (animationManager != null)
+        if (animationManager.AreUIAnimationsEnabled())
         {
             // animate header from top
             animationManager.AnimateHeaderAppearance(

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+// rocket is a class that represents a rocket in the grid.
 public class Rocket : GridItem
 {
     // rocket direction
@@ -736,6 +737,9 @@ public class Rocket : GridItem
         }
         return count;
     }
+
+
+    // print all attributes for debugging
 
     [ContextMenu("Print All Attributes")]
     public void PrintAllAttributes()

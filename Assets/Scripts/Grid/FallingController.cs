@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
+// falling controller is a class that handles the falling of items in the grid.
 public class FallingController : MonoBehaviour
 {
     [SerializeField] private GridManager gridManager;
+    [SerializeField] private bool debugMode = false;
 
     // event to notify when empty spaces are ready to be filled
     public delegate void EmptySpacesReadyHandler(Dictionary<int, int> emptySpacesPerColumn);
@@ -21,64 +23,58 @@ public class FallingController : MonoBehaviour
     {
         // get animation manager reference
         animationManager = AnimationManager.Instance;
+        if (debugMode) Debug.Log("[FallingController] Initialized with debug mode enabled");
     }
 
     // main function to make items fall
     public IEnumerator ProcessFalling()
     {
-        Debug.Log("[FallingController] Starting ProcessFalling");
+        if (debugMode) Debug.Log("[FallingController] Starting ProcessFalling");
 
         isFalling = true;
-        Debug.Log("[FallingController] Set isFalling to true");
+        if (debugMode) Debug.Log("[FallingController] Set isFalling to true");
 
-        yield return StartCoroutine(WaitForAnimationsToComplete());
+        yield return new WaitForSeconds(0.1f);
 
         // calculate all movements before processing
-        Debug.Log("[FallingController] Calculating falling positions");
+        if (debugMode) Debug.Log("[FallingController] Calculating falling positions");
         Dictionary<Vector2Int, Vector2Int> fallingPositions = CalculateFallingPositions();
-        Debug.Log($"[FallingController] Found {fallingPositions.Count} positions to process");
+        if (debugMode) Debug.Log($"[FallingController] Found {fallingPositions.Count} positions to process");
 
         // reset animation counter
         activeAnimationCount = 0;
-        Debug.Log("[FallingController] Reset animation counter");
+        if (debugMode) Debug.Log("[FallingController] Reset animation counter");
 
         // process the falling with calculated positions
-        Debug.Log("[FallingController] Processing falling positions");
+        if (debugMode) Debug.Log("[FallingController] Processing falling positions");
         ProcessFallingPositions(fallingPositions);
 
         // calculate empty spaces at the top for filling immediately 
         // (don't wait for animations to complete)
-        Debug.Log("[FallingController] Calculating empty spaces");
+        if (debugMode) Debug.Log("[FallingController] Calculating empty spaces");
         Dictionary<int, int> emptySpaces = CalculateEmptySpaces();
-        Debug.Log($"[FallingController] Found empty spaces in {emptySpaces.Count} columns");
+        if (debugMode) Debug.Log($"[FallingController] Found empty spaces in {emptySpaces.Count} columns");
         OnEmptySpacesReady?.Invoke(emptySpaces);
 
-
-
         // wait for all animations to complete
-        Debug.Log("[FallingController] Waiting for animations to complete");
-        yield return StartCoroutine(WaitForAnimationsToComplete());
+        if (debugMode) Debug.Log("[FallingController] Waiting for animations to complete");
+        yield return new WaitForSeconds(0.1f);
 
         isFalling = false;
-        Debug.Log("[FallingController] Falling complete");
-        yield return new WaitForSeconds(0.1f);
-
-    }
-
-
-
-    // wait for all animations to complete
-    private IEnumerator WaitForAnimationsToComplete()
-    {
+        if (debugMode) Debug.Log("[FallingController] Falling complete");
         yield return new WaitForSeconds(0.1f);
     }
+
 
     // process falling with pre-calculated positions (no animations)
     public void ProcessFallingPositions(Dictionary<Vector2Int, Vector2Int> fallingPositions)
     {
         // skip if no positions to process
         if (fallingPositions.Count == 0)
+        {
+            if (debugMode) Debug.Log("[FallingController] No positions to process");
             return;
+        }
 
         // check if there are any vase obstacles in the falling positions
         bool hasVaseObstacle = false;
@@ -92,6 +88,7 @@ public class FallingController : MonoBehaviour
                 if (item is VaseObstacle)
                 {
                     hasVaseObstacle = true;
+                    if (debugMode) Debug.Log("[FallingController] Found vase obstacle in falling positions");
                     break;
                 }
             }
@@ -115,6 +112,8 @@ public class FallingController : MonoBehaviour
         List<int> sortedRows = new List<int>(rowBatches.Keys);
         sortedRows.Sort();
 
+        if (debugMode) Debug.Log($"[FallingController] Processing {sortedRows.Count} rows of falling items");
+
         // process each row as a batch, starting from bottom
         foreach (int row in sortedRows)
         {
@@ -133,12 +132,18 @@ public class FallingController : MonoBehaviour
 
                 // check if source cell still has an item and target cell is empty
                 if (sourceCell == null || targetCell == null || sourceCell.IsEmpty() || !targetCell.IsEmpty())
+                {
+                    if (debugMode) Debug.Log($"[FallingController] Skipping invalid move from {currentPos} to {targetPos}");
                     continue;
+                }
 
                 // get the item to move
                 GridItem itemToMove = sourceCell.GetItem();
                 if (itemToMove == null)
+                {
+                    if (debugMode) Debug.Log($"[FallingController] No item to move at position {currentPos}");
                     continue;
+                }
 
                 itemToMove.SetCanInteract(false);
 
@@ -159,6 +164,7 @@ public class FallingController : MonoBehaviour
             if (batchItems.Count > 0)
             {
                 activeAnimationCount++;
+                if (debugMode) Debug.Log($"[FallingController] Animating {batchItems.Count} items in row {row}");
 
                 if (animationManager != null)
                 {
@@ -171,6 +177,7 @@ public class FallingController : MonoBehaviour
                         {
                             // callback when batch animation completes
                             activeAnimationCount--;
+                            if (debugMode) Debug.Log($"[FallingController] Batch animation completed for row {row}");
 
                             // mark items as ready after animation completes
                             foreach (var item in batchItems)
@@ -186,6 +193,7 @@ public class FallingController : MonoBehaviour
                 else
                 {
                     // fallback if animation manager not available
+                    if (debugMode) Debug.Log("[FallingController] Animation manager not available, using fallback");
                     for (int i = 0; i < batchItems.Count; i++)
                     {
                         batchItems[i].transform.position = endPositions[i];
@@ -200,8 +208,6 @@ public class FallingController : MonoBehaviour
                     activeAnimationCount--;
                 }
             }
-
-
         }
     }
 
@@ -213,6 +219,8 @@ public class FallingController : MonoBehaviour
         // process each column independently
         for (int x = 0; x < gridManager.GetWidth(); x++)
         {
+            if (debugMode) Debug.Log($"[FallingController] Processing column {x}");
+
             // bottom-up approach - track the next available empty position
             int emptyPos = 0;
 
@@ -227,7 +235,10 @@ public class FallingController : MonoBehaviour
 
             // if no empty positions or reached top, skip this column
             if (emptyPos >= gridManager.GetHeight())
+            {
+                if (debugMode) Debug.Log($"[FallingController] No empty positions found in column {x}");
                 continue;
+            }
 
             // second pass: process items that can fall
             for (int y = emptyPos + 1; y < gridManager.GetHeight(); y++)
@@ -246,6 +257,7 @@ public class FallingController : MonoBehaviour
                     // non-falling obstacles block falling items above them
                     // so we reset the empty position to the cell after this obstacle
                     emptyPos = y + 1;
+                    if (debugMode) Debug.Log($"[FallingController] Found non-falling obstacle at ({x}, {y})");
                     continue;
                 }
 
@@ -254,6 +266,7 @@ public class FallingController : MonoBehaviour
                 Vector2Int newPos = new Vector2Int(x, emptyPos);
 
                 fallingMap[originalPos] = newPos;
+                if (debugMode) Debug.Log($"[FallingController] Item at {originalPos} will fall to {newPos}");
 
                 // update the next empty position
                 emptyPos++;
@@ -262,7 +275,6 @@ public class FallingController : MonoBehaviour
 
         return fallingMap;
     }
-
 
     // calculate empty spaces at the top of each column
     private Dictionary<int, int> CalculateEmptySpaces()
@@ -284,12 +296,14 @@ public class FallingController : MonoBehaviour
             }
 
             if (emptyCount > 0)
+            {
                 emptySpaces[x] = emptyCount;
+                if (debugMode) Debug.Log($"[FallingController] Column {x} has {emptyCount} empty spaces");
+            }
         }
 
         return emptySpaces;
     }
-
 
     // public accessor for falling state
     public bool IsFalling() => isFalling;

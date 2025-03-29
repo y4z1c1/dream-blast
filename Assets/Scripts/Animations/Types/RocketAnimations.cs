@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
+// rocket animations calls that handles all rocket animations. this is set to be a monobehaviour
+// unlike other animation classes, because it needs to be able to destroy rockets.
 public class RocketAnimations : MonoBehaviour
 {
     private static AnimationManager animManager;
@@ -109,7 +111,7 @@ public class RocketAnimations : MonoBehaviour
         // clear existing particles before configuration
         smoke.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
-        // Get multipliers from animation manager
+        // get multipliers from animation manager
         float emissionMultiplier = animManager.GetRocketSmokeEmissionMultiplier();
         float sizeMultiplier = animManager.GetRocketSmokeSizeMultiplier();
         float burstMultiplier = animManager.GetParticleBurstMultiplier();
@@ -118,29 +120,29 @@ public class RocketAnimations : MonoBehaviour
         // experimental values, these seem to work well
         var main = smoke.main;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.startLifetime = new ParticleSystem.MinMaxCurve(0.35f, 0.6f); // balanced lifetime
+        main.startLifetime = new ParticleSystem.MinMaxCurve(0.35f, 0.6f);
         main.startSize = new ParticleSystem.MinMaxCurve(
             0.25f * sizeMultiplier,
-            0.4f * sizeMultiplier); // balanced particle size with multiplier
+            0.4f * sizeMultiplier);
         main.startColor = new ParticleSystem.MinMaxGradient(
-            new Color(1f, 0.95f, 0.7f, 0.25f),  // softer yellow, balanced opacity
-            new Color(1f, 0.9f, 0.5f, 0.18f)    // golden yellow, balanced opacity
+            new Color(1f, 0.95f, 0.7f, 0.25f),
+            new Color(1f, 0.9f, 0.5f, 0.18f)
         );
-        main.startSpeed = 0.12f;                // balanced speed
-        main.gravityModifier = -0.02f;         // very slight upward drift
+        main.startSpeed = 0.12f;
+        main.gravityModifier = -0.02f;
 
         var emission = smoke.emission;
-        emission.rateOverTime = 25f * emissionMultiplier;           // balanced emission rate with multiplier
-        emission.rateOverDistance = 18f * emissionMultiplier;       // balanced trail density with multiplier
+        emission.rateOverTime = 25f * emissionMultiplier;
+        emission.rateOverDistance = 18f * emissionMultiplier;
 
         var shape = smoke.shape;
         shape.shapeType = ParticleSystemShapeType.Sphere;
-        shape.radius = 0.09f;                  // balanced radius
+        shape.radius = 0.09f;
 
         // gentle velocity for soft movement
         var velocityOverLifetime = smoke.velocityOverLifetime;
         velocityOverLifetime.enabled = true;
-        // Use ParticleSystemCurveMode.TwoConstants for all curves to ensure consistency
+
         velocityOverLifetime.x = new ParticleSystem.MinMaxCurve(-0.055f, 0.055f) { mode = ParticleSystemCurveMode.TwoConstants };
         velocityOverLifetime.y = new ParticleSystem.MinMaxCurve(-0.055f, 0.055f) { mode = ParticleSystemCurveMode.TwoConstants };
         velocityOverLifetime.z = new ParticleSystem.MinMaxCurve(-0.055f, 0.055f) { mode = ParticleSystemCurveMode.TwoConstants };
@@ -156,9 +158,9 @@ public class RocketAnimations : MonoBehaviour
             new GradientColorKey(new Color(0.9f, 0.8f, 0.3f), 1.0f)
             },
             new GradientAlphaKey[] {
-            new GradientAlphaKey(0.3f, 0.0f),  // start with balanced opacity
-            new GradientAlphaKey(0.2f, 0.5f),  // balanced fade
-            new GradientAlphaKey(0.0f, 1.0f)    // fade to transparent
+            new GradientAlphaKey(0.3f, 0.0f),
+            new GradientAlphaKey(0.2f, 0.5f),
+            new GradientAlphaKey(0.0f, 1.0f)
             }
         );
         colorOverLifetime.color = gradient;
@@ -167,16 +169,16 @@ public class RocketAnimations : MonoBehaviour
         var sizeOverLifetime = smoke.sizeOverLifetime;
         sizeOverLifetime.enabled = true;
         AnimationCurve sizeCurve = new AnimationCurve();
-        sizeCurve.AddKey(0f, 0.75f);    // start at 75% size
-        sizeCurve.AddKey(0.3f, 0.85f);  // Balanced growth
-        sizeCurve.AddKey(0.7f, 1.05f);  // balanced expansion
-        sizeCurve.AddKey(1f, 1.15f);    // end slightly larger
+        sizeCurve.AddKey(0f, 0.75f);
+        sizeCurve.AddKey(0.3f, 0.85f);
+        sizeCurve.AddKey(0.7f, 1.05f);
+        sizeCurve.AddKey(1f, 1.15f);
         sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1f, sizeCurve);
 
         // very gentle rotation for subtle movement
         var rotationOverLifetime = smoke.rotationOverLifetime;
         rotationOverLifetime.enabled = true;
-        rotationOverLifetime.z = new ParticleSystem.MinMaxCurve(-6f, 6f); // balanced rotation
+        rotationOverLifetime.z = new ParticleSystem.MinMaxCurve(-6f, 6f);
 
         // renderer settings
         var renderer = smoke.GetComponent<ParticleSystemRenderer>();
@@ -184,8 +186,8 @@ public class RocketAnimations : MonoBehaviour
         {
             renderer.renderMode = ParticleSystemRenderMode.Billboard;
             renderer.sortMode = ParticleSystemSortMode.YoungestInFront;
-            renderer.minParticleSize = 0.12f * sizeMultiplier;  // balanced minimum size with multiplier
-            renderer.maxParticleSize = 1.6f * sizeMultiplier;   // balanced maximum size with multiplier
+            renderer.minParticleSize = 0.12f * sizeMultiplier;
+            renderer.maxParticleSize = 1.6f * sizeMultiplier;
         }
 
         // play the effect
@@ -368,14 +370,14 @@ public class RocketAnimations : MonoBehaviour
                     }
                 }) : DOTween.Sequence() // empty sequence if projectile is null
             );
-            // small pause
+            // small pause while hitting objects
             if (i < path.Count - 1)
             {
-                pathSequence.AppendInterval(0.03f);
+                pathSequence.AppendInterval(0.02f);
             }
         }
 
-        // Clean up projectile when sequence completes
+        // clean up projectile when sequence completes
         pathSequence.OnComplete(() =>
         {
             CleanupProjectile(projectileObj, trailEffect, smokeEffect);
@@ -389,27 +391,27 @@ public class RocketAnimations : MonoBehaviour
             if (IsDebugEnabled()) Debug.Log("[RocketAnimations] Rocket projectile animation completed");
         });
 
-        // Add safety handler for if sequence is killed
+        // add safety handler for if sequence is killed
         pathSequence.OnKill(() =>
         {
             if (IsDebugEnabled()) Debug.Log("[RocketAnimations] Rocket projectile animation killed, cleaning up");
 
             CleanupProjectile(projectileObj, trailEffect, smokeEffect);
 
-            // Ensure callback is still invoked
+            // ensure callback is still invoked
             onComplete?.Invoke();
         });
     }
 
-    // Helper to safely clean up projectile and particle effects
+    // helper to safely clean up projectile and particle effects
     private static void CleanupProjectile(GameObject projectileObj, ParticleSystem trailEffect, ParticleSystem smokeEffect)
     {
         if (projectileObj == null) return;
 
-        // Kill any tweens on the projectile
+        // kill any tweens on the projectile
         KillAllTweens(projectileObj);
 
-        // Clean up particle effects
+        // clean up particle effects
         if (trailEffect != null)
         {
             trailEffect.Stop(true, ParticleSystemStopBehavior.StopEmitting);
@@ -424,9 +426,10 @@ public class RocketAnimations : MonoBehaviour
             particleManager.ReturnParticleToPool(smokeEffect, "RocketSmoke");
         }
 
-        // Destroy the projectile
+        // destroy the projectile
         GameObject.Destroy(projectileObj);
     }
+
     // helper method for camera shake effect
     private static void CreateCameraShake(float intensity, float duration)
     {
@@ -822,8 +825,8 @@ public class RocketAnimations : MonoBehaviour
         main.gravityModifier = 0f;
 
         var emission = trail.emission;
-        emission.rateOverTime = 50f * emissionMultiplier; // apply emission multiplier
-        emission.rateOverDistance = 20f * emissionMultiplier; // apply emission multiplier
+        emission.rateOverTime = 50f * emissionMultiplier;
+        emission.rateOverDistance = 20f * emissionMultiplier;
 
         // shape module for trail spread
         var shape = trail.shape;
@@ -870,7 +873,7 @@ public class RocketAnimations : MonoBehaviour
         {
             renderer.renderMode = ParticleSystemRenderMode.Billboard;
             renderer.sortMode = ParticleSystemSortMode.YoungestInFront;
-            renderer.maxParticleSize = 2.0f * sizeMultiplier; // apply size multiplier
+            renderer.maxParticleSize = 2.0f * sizeMultiplier;
         }
 
         // play the effect
@@ -1076,28 +1079,28 @@ public class RocketAnimations : MonoBehaviour
             rocketSequence.Join(
                 trans.DORotate(new Vector3(0, 0, Random.Range(-30f, 30f)), duration * 0.3f / speedMultiplier)
                 .SetEase(moveEase)
-                .SetTarget(trans) // better target handling
+                .SetTarget(trans)
             );
 
             // second movement - to target
             rocketSequence.Append(
                 trans.DOMove(targetWorldPos, duration * 0.7f / speedMultiplier)
                 .SetEase(moveEase)
-                .SetTarget(trans) // better target handling
+                .SetTarget(trans)
             );
 
             // scaling during second movement
             rocketSequence.Join(
                 trans.DOScale(startScales[i] * 0.7f, duration * 0.7f / speedMultiplier)
                 .SetEase(moveEase)
-                .SetTarget(trans) // better target handling
+                .SetTarget(trans)
             );
 
             // rotation during second movement
             rocketSequence.Join(
                 trans.DORotate(new Vector3(0, 0, Random.Range(-90f, 90f)), duration * 0.7f / speedMultiplier)
                 .SetEase(moveEase)
-                .SetTarget(trans) // better target handling
+                .SetTarget(trans)
             );
 
             // fade out with color shift
@@ -1106,7 +1109,7 @@ public class RocketAnimations : MonoBehaviour
                 renderer.DOColor(finalColor, duration * 0.3f / speedMultiplier)
                 .SetDelay(duration * 0.7f / speedMultiplier)
                 .SetEase(moveEase)
-                .SetTarget(renderer) // better target handling
+                .SetTarget(renderer)
                 .OnUpdate(() =>
                 {
                     if (!isRendererValid()) DOTween.Kill(renderer);
@@ -1122,7 +1125,7 @@ public class RocketAnimations : MonoBehaviour
         {
             if (particleManager != null)
             {
-                // Get particle multipliers from animation manager
+                // get particle multipliers from animation manager
                 float starEmissionMultiplier = animManager.GetRocketStarEmissionMultiplier();
                 float smokeEmissionMultiplier = animManager.GetRocketSmokeEmissionMultiplier();
                 float starSizeMultiplier = animManager.GetRocketStarSizeMultiplier();

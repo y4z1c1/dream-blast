@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// level controller is a central class that handles many in-game operations.
 public class LevelController : MonoBehaviour
 {
     [SerializeField] private GridManager gridManager;
@@ -103,20 +104,20 @@ public class LevelController : MonoBehaviour
         LoadCurrentLevel();
     }
 
-    // Register the ObstacleCounterUI with the LevelController
+    // register the ObstacleCounterUI with the LevelController
     public void RegisterObstacleCounter(ObstacleCounterUI counter)
     {
         obstacleCounter = counter;
         DebugLog("ObstacleCounterUI registered with LevelController");
 
-        // If we already have obstacles, initialize the counter
+        // if we already have obstacles, initialize the counter
         if (obstacles.Count > 0)
         {
             InitializeObstacleCounter();
         }
     }
 
-    // Initialize the obstacle counter with current obstacle data
+    // initialize the obstacle counter with current obstacle data
     private void InitializeObstacleCounter()
     {
         if (obstacleCounter != null)
@@ -189,7 +190,7 @@ public class LevelController : MonoBehaviour
         }
     }
 
-    // Callback for when grid initialization is complete
+    // callback for when grid initialization is complete
     private void OnGridInitializationComplete(bool success)
     {
         if (success)
@@ -203,7 +204,7 @@ public class LevelController : MonoBehaviour
                 DebugLog("Re-set GridManager reference in MatchFinder after grid initialization");
             }
 
-            // Now that grid is fully initialized, we can safely populate it
+            // now that grid is fully initialized, we can safely populate it
             PopulateGrid();
         }
         else
@@ -241,7 +242,7 @@ public class LevelController : MonoBehaviour
             }
         }
 
-        // Now that all obstacles are created, initialize the obstacle counter
+        // now that all obstacles are created, initialize the obstacle counter
         InitializeObstacleCounter();
 
         // Animate the grid appearing from the bottom
@@ -673,7 +674,7 @@ public class LevelController : MonoBehaviour
     private void GameOver(bool win)
 
     {
-
+        // increment tap enabled counter to prevent the grid from being tapped with a high value (100)
         gridManager.IncrementTapEnabled(100);
 
         isGameOver = true;
@@ -693,7 +694,7 @@ public class LevelController : MonoBehaviour
 
             DebugLog("Level completed!");
 
-            // Show win panel
+            // show win panel
             if (popupController != null)
             {
                 DebugLog($"Showing win popup from LevelController. isLastLevel: {isLastLevel}, totalLevels: {totalLevels}, nextLevel: {nextLevel}");
@@ -714,7 +715,7 @@ public class LevelController : MonoBehaviour
         {
             DebugLog("Game Over - Out of moves!");
 
-            // Show lose panel
+            // show lose panel
             if (popupController != null)
             {
                 DebugLog("Showing lose popup from LevelController");
@@ -739,7 +740,6 @@ public class LevelController : MonoBehaviour
         if (nextLevel > totalLevels)
         {
             DebugLog("All levels completed!");
-            // handle game completion (e.g., show final celebration, return to main menu)
             GameManager.Instance.ReturnToMainMenu(); // this should handle the "Finished" state
         }
         else
@@ -855,10 +855,10 @@ public class LevelController : MonoBehaviour
         }
 
         // if any obstacle was destroyed, delay the falling process
-        /*if (anyObstacleDestroyed)
+        if (anyObstacleDestroyed)
         {
             StartCoroutine(DelayFallingAfterObstacleDestruction());
-        }*/
+        }
     }
 
     private IEnumerator DelayFallingAfterObstacleDestruction()
@@ -866,17 +866,10 @@ public class LevelController : MonoBehaviour
         // flag to block falling temporarily
         isDelayingFalling = true;
 
-        // Get delay from AnimationManager or use a default value if not available
-        float delay = 0.3f; // Default fallback value
-        if (animationManager != null)
-        {
-            delay = animationManager.GetObstacleDestroyDuration();
-            DebugLog($"Using obstacle destruction delay from AnimationManager: {delay}");
-        }
-        else
-        {
-            DebugLogWarning("AnimationManager not available, using default delay value");
-        }
+        // get delay from AnimationManager
+        float delay = animationManager.GetObstacleDestroyDuration();
+        DebugLog($"Using obstacle destruction delay from AnimationManager: {delay}");
+
 
         // wait for the specified delay
         yield return new WaitForSeconds(delay / 2);

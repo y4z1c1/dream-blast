@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+// obstacle is a base class that represents an obstacle in the grid.
 public abstract class Obstacle : GridItem
 {
     // health/durability of the obstacle

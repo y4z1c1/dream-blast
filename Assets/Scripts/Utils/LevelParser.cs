@@ -2,6 +2,7 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 
+// level parser is a class that parses the level data from a JSON file.
 public class LevelParser : MonoBehaviour
 {
     // path to the levels folder within Resources

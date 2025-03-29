@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections;
 
+// game manager is a singleton that manages the scene management and handles mainscene.
 public class GameManager : MonoBehaviour
 {
     // singleton instance
@@ -137,7 +138,7 @@ public class GameManager : MonoBehaviour
         // try to get animation manager
         AnimationManager animManager = AnimationManager.Instance;
 
-        if (animManager != null)
+        if (animManager.AreUIAnimationsEnabled())
         {
             // ensure button is active but initially disable interaction until animation finishes
             levelButtonObj.SetActive(true);
@@ -178,7 +179,7 @@ public class GameManager : MonoBehaviour
     public void StartLevel()
     {
         // kill all particles before scene transition
-        ParticleManager particleManager = FindObjectOfType<ParticleManager>();
+        ParticleManager particleManager = Object.FindAnyObjectByType<ParticleManager>();
         if (particleManager != null)
         {
             particleManager.StopAllParticles();
@@ -192,7 +193,7 @@ public class GameManager : MonoBehaviour
     public void RestartLevel()
     {
         // kill all particles before scene transition
-        ParticleManager particleManager = FindObjectOfType<ParticleManager>();
+        ParticleManager particleManager = Object.FindAnyObjectByType<ParticleManager>();
         if (particleManager != null)
         {
             particleManager.StopAllParticles();
@@ -206,7 +207,7 @@ public class GameManager : MonoBehaviour
     public void ReturnToMainMenu()
     {
         // kill all particles before scene transition
-        ParticleManager particleManager = FindObjectOfType<ParticleManager>();
+        ParticleManager particleManager = Object.FindAnyObjectByType<ParticleManager>();
         if (particleManager != null)
         {
             particleManager.StopAllParticles();
@@ -267,7 +268,7 @@ public class GameManager : MonoBehaviour
         UpdateLevelButtonText();
     }
 
-    // ui management
+    // update the level button text
     public void UpdateLevelButtonText()
     {
         if (levelButtonText != null)
@@ -295,29 +296,29 @@ public class GameManager : MonoBehaviour
             levelButton.interactable = false;
         }
 
-        // First play the click animation
+        // first play the click animation
         PlayLevelButtonClickAnimation(() =>
         {
-            // Try to get animation manager
+            // try to get animation manager
             AnimationManager animManager = AnimationManager.Instance;
-            if (animManager != null)
+            if (animManager.AreUIAnimationsEnabled())
             {
-                // Play exit animation before loading level
+                // play exit animation before loading level
                 animManager.AnimateLevelButtonExit(levelButtonObj.transform, 0.8f, 400f, () =>
                 {
-                    // Load the level scene after animation completes
+                    // load the level scene after animation completes
                     StartLevel();
                 });
             }
             else
             {
-                // If no animation manager, just load the level
+                // if no animation manager, just load the level
                 StartLevel();
             }
         });
     }
 
-    // Play the same button click animation as used in PopupController
+    // play the same button click animation as used in PopupController
     private void PlayLevelButtonClickAnimation(System.Action onComplete)
     {
         if (levelButtonObj == null || levelButton == null)
@@ -332,11 +333,11 @@ public class GameManager : MonoBehaviour
         if (animManager != null)
         {
 
-            // Use button click animation from the AnimationManager
+            // use button click animation from the AnimationManager
             animManager.AnimateButtonClick(levelButton);
 
-            // Wait for the animation to complete before continuing
-            // The animation duration is controlled by AnimationManager
+            // wait for the animation to complete before continuing
+            // the animation duration is controlled by AnimationManager
             StartCoroutine(WaitForButtonAnimation(onComplete));
         }
         else
@@ -347,13 +348,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Helper to wait for button animation to complete
+    // helper to wait for button animation to complete
     private IEnumerator WaitForButtonAnimation(System.Action onComplete)
     {
 
         yield return new WaitForSeconds(0.1f);
 
-        // Complete
         onComplete?.Invoke();
     }
 

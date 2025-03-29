@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 
+// popup controller is a class that controls the popup in the game.
 public class PopupController : MonoBehaviour
 {
     // singleton instance
@@ -22,10 +23,10 @@ public class PopupController : MonoBehaviour
     [SerializeField] private Button closeButton;
     [SerializeField] private Button mainButton;
     [SerializeField] private TextMeshProUGUI mainButtonText;
-    [SerializeField] private Transform particleContainer; // separate container for particles
+    [SerializeField] private Transform particleContainer;
 
     [Header("Debug & Animation Settings")]
-    [SerializeField] private bool debugMode = false; // debug mode to show extra logs
+    [SerializeField] private bool debugMode = false;
     [SerializeField] private bool useAnimations = true;
     [SerializeField] private float animationDuration = 0.5f;
     [SerializeField] private float fadeInDuration = 0.3f;
@@ -283,7 +284,7 @@ public class PopupController : MonoBehaviour
             instance.ShowPopupVisuals();
     }
 
-    // convenience method for win popup - combined with static version
+    // convenience method for win popup 
     public static void ShowWinPopup(float delay = 1.0f)
     {
         var instance = EnsureExists();
@@ -352,14 +353,8 @@ public class PopupController : MonoBehaviour
         }
     }
 
-    // convenience method for final win popup (no next level button) - combined with static version
-    public static void ShowFinalWinPopup(float delay = 1.0f)
-    {
-        // redirect to regular win popup since they now have the same behavior
-        ShowWinPopup(delay);
-    }
 
-    // convenience method for lose popup - combined with static version
+    // convenience method for lose popup 
     public static void ShowLosePopup(float delay = 1.0f)
     {
         var instance = EnsureExists();
@@ -520,7 +515,7 @@ public class PopupController : MonoBehaviour
                     backgroundOverlay.color.r,
                     backgroundOverlay.color.g,
                     backgroundOverlay.color.b,
-                    0.7f
+                    0.8f
                 );
             }
         }
@@ -653,7 +648,6 @@ public class PopupController : MonoBehaviour
 
             if (debugMode) Debug.Log("Playing enhanced win celebration for final win with StarConfetti and AddStarConfetti effects");
         }
-        // no need to set scales - let animations handle it
     }
 
     // original simple celebration animation maintained for compatibility

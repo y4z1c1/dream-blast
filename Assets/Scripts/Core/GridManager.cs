@@ -4,17 +4,22 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Text;
 
+// grid manager is a singleton that manages the grid and its contents.
 public class GridManager : MonoBehaviour
 {
     // grid dimensions
     [SerializeField] private int gridWidth = 6;
     [SerializeField] private int gridHeight = 8;
 
+    // debug mode
+    [Header("Debug")]
+    [SerializeField] private bool debugMode = false;
+
     // grid background
     [SerializeField] private SpriteRenderer gridBackgroundPrefab;
     private SpriteRenderer gridBackground;
 
-    // masking
+    // masking 
     [Header("Masking")]
     [SerializeField] private GameObject maskPrefab;
     [SerializeField] private bool useSpriteMask = true;
@@ -36,20 +41,12 @@ public class GridManager : MonoBehaviour
     // game over flag
     private int tapEnabled = 0;
 
-    // animation parameters
-    private Vector3 initialGridPosition;
-    private Vector3 targetGridPosition;
-    private Vector3 initialBgPosition;  // background initial position
-    private Vector3 targetBgPosition;   // background target position
-    private bool isAnimatingAppearance = false;
-    private float animationDuration = 0.8f;
-    private float animationTimer = 0f;
-
     // animation manager reference
     private AnimationManager animationManager;
 
     // set and get game over
     // get tap enabled state
+    // tapenabled works like a semaphore in order to prevent the grid from being tapped for critical operations
     public bool TapEnabled { get => tapEnabled == 0; }
 
     // increment tap enabled counter
@@ -57,7 +54,7 @@ public class GridManager : MonoBehaviour
     {
         // increment tap enabled counter
         tapEnabled++;
-        Debug.Log($"[GridManager] ⬆️ Incremented tapEnabled to {tapEnabled}");
+        if (debugMode) Debug.Log($"[GridManager] ⬆️ Incremented tapEnabled to {tapEnabled}");
     }
 
     // decrement tap enabled counter 
@@ -67,7 +64,7 @@ public class GridManager : MonoBehaviour
         if (tapEnabled > 0)
         {
             tapEnabled--;
-            Debug.Log($"[GridManager] ⬇️ Decremented tapEnabled to {tapEnabled}");
+            if (debugMode) Debug.Log($"[GridManager] ⬇️ Decremented tapEnabled to {tapEnabled}");
         }
     }
 
@@ -75,21 +72,21 @@ public class GridManager : MonoBehaviour
     public void IncrementTapEnabled(int amount)
     {
         tapEnabled += amount;
-        Debug.Log($"[GridManager] ⬆️ Incremented tapEnabled by {amount} to {tapEnabled}");
+        if (debugMode) Debug.Log($"[GridManager] ⬆️ Incremented tapEnabled by {amount} to {tapEnabled}");
     }
 
     // decrement tapenabled by a specific amount
     public void DecrementTapEnabled(int amount)
     {
         tapEnabled -= amount;
-        Debug.Log($"[GridManager] ⬇️ Decremented tapEnabled by {amount} to {tapEnabled}");
+        if (debugMode) Debug.Log($"[GridManager] ⬇️ Decremented tapEnabled by {amount} to {tapEnabled}");
     }
 
     // reset tap enabled
     public void ResetTapEnabled()
     {
         tapEnabled = 0;
-        Debug.Log($"[GridManager] ⬇️ Reset tapEnabled to {tapEnabled}");
+        if (debugMode) Debug.Log($"[GridManager] ⬇️ Reset tapEnabled to {tapEnabled}");
     }
 
     private void Awake()
@@ -110,7 +107,7 @@ public class GridManager : MonoBehaviour
     // creates the grid with the specified dimensions
     public void CreateGrid()
     {
-        Debug.Log($"[GridManager] Starting grid creation with dimensions: {gridWidth}x{gridHeight}");
+        if (debugMode) Debug.Log($"[GridManager] Starting grid creation with dimensions: {gridWidth}x{gridHeight}");
 
         // create background first
         CreateGridBackground();
@@ -158,7 +155,7 @@ public class GridManager : MonoBehaviour
                 if (cell == null)
                 {
                     cell = cellObject.AddComponent<GridCell>();
-                    Debug.Log($"[GridManager] Added missing GridCell component to cell at ({x}, {y})");
+                    if (debugMode) Debug.Log($"[GridManager] Added missing GridCell component to cell at ({x}, {y})");
                 }
 
                 // initialize cell
@@ -170,12 +167,12 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        Debug.Log($"[GridManager] Grid creation complete: Created {createdCells} cells in a {gridWidth}x{gridHeight} grid");
+        if (debugMode) Debug.Log($"[GridManager] Grid creation complete: Created {createdCells} cells in a {gridWidth}x{gridHeight} grid");
 
-        // Verify grid was created properly
+        // verify grid was created properly
         if (IsGridCreated())
         {
-            Debug.Log($"[GridManager] Grid validation successful: grid[0,0] exists and is properly initialized");
+            if (debugMode) Debug.Log($"[GridManager] Grid validation successful: grid[0,0] exists and is properly initialized");
         }
         else
         {
@@ -373,22 +370,22 @@ public class GridManager : MonoBehaviour
         StartCoroutine(InitializeGridCoroutine(onInitializationComplete));
     }
 
-    // Coroutine to handle grid initialization asynchronously
+    // coroutine to handle grid initialization asynchronously
     private IEnumerator InitializeGridCoroutine(System.Action<bool> onInitializationComplete)
     {
-        // Clear existing grid and items
+        // clear existing grid and items
         ClearGrid();
 
-        // Wait a frame to ensure everything is properly cleared
+        // wait a frame to ensure everything is properly cleared
         yield return null;
 
-        // Create the new grid
+        // create the new grid
         CreateGrid();
 
-        // Wait a frame to ensure everything is properly created
+        // wait a frame to ensure everything is properly created
         yield return null;
 
-        // Validate to ensure grid was created properly
+        // validate to ensure grid was created properly
         bool success = IsGridCreated();
 
         if (!success)
@@ -400,7 +397,7 @@ public class GridManager : MonoBehaviour
             Debug.Log($"Grid initialized successfully with dimensions: {gridWidth}x{gridHeight}");
         }
 
-        // Invoke the callback if provided
+        // invoke the callback if provided
         onInitializationComplete?.Invoke(success);
     }
 
@@ -446,8 +443,6 @@ public class GridManager : MonoBehaviour
             gridMask = null;
         }
 
-        // Don't destroy the background here, it will be handled in CreateGridBackground
-
         // clear any other child objects except don't try to destroy the background here
         // as we'll handle it in CreateGridBackground
         foreach (Transform child in transform)
@@ -460,35 +455,35 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    // Checks if the grid has been properly created and initialized
+    // checks if the grid has been properly created and initialized
     public bool IsGridCreated()
     {
-        // Check if grid array exists
+        // check if grid array exists
         if (grid == null)
         {
             Debug.LogError("[GridManager] Grid validation failed: grid array is null");
             return false;
         }
 
-        // Check if grid dimensions match expected dimensions
+        // check if grid dimensions match expected dimensions
         if (grid.GetLength(0) != gridWidth || grid.GetLength(1) != gridHeight)
         {
             Debug.LogError($"[GridManager] Grid validation failed: grid dimensions mismatch. Expected: {gridWidth}x{gridHeight}, Actual: {grid.GetLength(0)}x{grid.GetLength(1)}");
             return false;
         }
 
-        // Check if at least the first cell exists
+        // check if at least the first cell exists
         if (grid[0, 0] == null)
         {
             Debug.LogError("[GridManager] Grid validation failed: grid[0,0] is null");
             return false;
         }
 
-        // Check a sample of cells throughout the grid to ensure they're properly created
-        // Check corners and center cells for larger grids
+        // check a sample of cells throughout the grid to ensure they're properly created
+        // check corners and center cells for larger grids
         bool allCellsValid = true;
 
-        // Check corners
+        // check corners
         if (grid[0, 0] == null || grid[0, gridHeight - 1] == null ||
             grid[gridWidth - 1, 0] == null || grid[gridWidth - 1, gridHeight - 1] == null)
         {
@@ -496,7 +491,7 @@ public class GridManager : MonoBehaviour
             allCellsValid = false;
         }
 
-        // For larger grids, also check the center
+        // for larger grids, also check the center
         if (gridWidth > 2 && gridHeight > 2)
         {
             int centerX = gridWidth / 2;
@@ -514,6 +509,17 @@ public class GridManager : MonoBehaviour
     // animate grid appearing from bottom
     public void AnimateGridAppearance()
     {
+        // check if animations are enabled
+        if (!animationManager.AreUIAnimationsEnabled())
+        {
+            // if animations are disabled, just show the grid immediately
+            if (gridCellsContainer != null)
+                gridCellsContainer.gameObject.SetActive(true);
+            if (gridBackground != null)
+                gridBackground.gameObject.SetActive(true);
+            return;
+        }
+
         // disable tap until animation completes
         IncrementTapEnabled();
 
@@ -526,21 +532,21 @@ public class GridManager : MonoBehaviour
         // Create a completion callback that resets the mask scale and decrements tapEnabled
         System.Action onComplete = () =>
         {
-            Debug.Log("[GridManager] Animation complete callback triggered");
+            if (debugMode) Debug.Log("[GridManager] Animation complete callback triggered");
 
             // Reset mask scale when animation completes
             if (gridMask != null && useSpriteMask)
             {
-                Debug.Log("[GridManager] Calling ResetToNormalScale on GridMask");
+                if (debugMode) Debug.Log("[GridManager] Calling ResetToNormalScale on GridMask");
                 gridMask.ResetToNormalScale();
             }
             else
             {
-                Debug.Log("[GridManager] Cannot reset mask scale: mask is null or disabled");
+                if (debugMode) Debug.Log("[GridManager] Cannot reset mask scale: mask is null or disabled");
             }
 
             // Decrement tapEnabled counter
-            Debug.Log("[GridManager] Animation complete, decrementing tapEnabled");
+            if (debugMode) Debug.Log("[GridManager] Animation complete, decrementing tapEnabled");
             DecrementTapEnabled();
         };
 
@@ -554,40 +560,11 @@ public class GridManager : MonoBehaviour
         );
     }
 
-    private void Update()
-    {
-        // Only handle animation manually if not using animation manager
-        if (isAnimatingAppearance && animationManager == null)
-        {
-            animationTimer += Time.deltaTime;
-            float progress = Mathf.Clamp01(animationTimer / animationDuration);
-
-            // use smooth step for easing
-            float smoothProgress = Mathf.SmoothStep(0f, 1f, progress);
-
-            // update cells position
-            gridCellsContainer.position = Vector3.Lerp(initialGridPosition, targetGridPosition, smoothProgress);
-
-            // update background position if it exists
-            if (gridBackground != null)
-            {
-                gridBackground.transform.position = Vector3.Lerp(initialBgPosition, targetBgPosition, smoothProgress);
-            }
-
-            // check if animation is complete
-            if (progress >= 1f)
-            {
-                isAnimatingAppearance = false;
-                DecrementTapEnabled();
-            }
-        }
-    }
-
     public void PrintGridContents()
     {
         StringBuilder gridDisplay = new StringBuilder();
 
-        // Create top border
+        // create top border
         string topBorder = "┌";
         for (int x = 0; x < gridWidth; x++)
         {
@@ -598,10 +575,10 @@ public class GridManager : MonoBehaviour
         topBorder += "┐";
         gridDisplay.AppendLine(topBorder);
 
-        // Display each row
+        // display each row
         for (int y = gridHeight - 1; y >= 0; y--)
         {
-            // Create content row
+            // create content row
             StringBuilder rowContent = new StringBuilder("│");
             for (int x = 0; x < gridWidth; x++)
             {
@@ -622,7 +599,7 @@ public class GridManager : MonoBehaviour
             }
             gridDisplay.AppendLine(rowContent.ToString());
 
-            // Add row separator (except after the last row)
+            // add row separator (except after the last row)
             if (y < gridHeight - 1)
             {
                 string rowSeparator = "├";
@@ -637,7 +614,7 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        // Create bottom border
+        // create bottom border
         string bottomBorder = "└";
         for (int x = 0; x < gridWidth; x++)
         {
@@ -648,7 +625,7 @@ public class GridManager : MonoBehaviour
         bottomBorder += "┘";
         gridDisplay.AppendLine(bottomBorder);
 
-        // Output the entire grid at once
+        // output the entire grid at once
         Debug.Log(gridDisplay.ToString());
     }
 }

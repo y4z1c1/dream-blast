@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
+// grid item is a base class that represents an item in the grid.
 public abstract class GridItem : MonoBehaviour
 {
     // grid position

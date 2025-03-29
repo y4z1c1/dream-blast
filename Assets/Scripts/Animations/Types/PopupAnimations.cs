@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 
+// popup animations are a static class that contains all popup specific animations.
 public static class PopupAnimations
 {
     private static AnimationManager animManager;

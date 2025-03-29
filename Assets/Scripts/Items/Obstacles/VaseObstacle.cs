@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+// vase obstacle is a class that represents a vase obstacle in the grid.
 public class VaseObstacle : Obstacle
 {
     [Header("Vase Specific Settings")]
@@ -117,7 +118,7 @@ public class VaseObstacle : Obstacle
         Destroy(gameObject);
     }
 
-    // Clear match group tracking at the start of a new turn
+    // clear match group tracking at the start of a new turn
     public void ClearMatchGroupTracking()
     {
         matchGroupsAppliedDamage.Clear();

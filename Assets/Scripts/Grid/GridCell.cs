@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
+// grid cell is a class that represents a cell in the grid.
 public class GridCell : MonoBehaviour
 {
     // grid coordinates

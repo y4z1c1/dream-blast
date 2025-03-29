@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
+// cube animations are a static class that contains all cube specific animations.
 public static class CubeAnimations
 {
     private static AnimationManager animManager;
@@ -223,7 +224,7 @@ public static class CubeAnimations
         List<SpriteRenderer> renderers = new List<SpriteRenderer>();
         List<Color> startColors = new List<Color>();
 
-        // Kill any existing animations on these cubes
+        // kill any existing animations on these cubes
         foreach (Cube cube in cubes)
         {
             if (cube != null && cube.gameObject != null)
@@ -397,10 +398,10 @@ public static class CubeAnimations
         {
             if (IsDebugEnabled()) Debug.Log("[CubeAnimations] Rocket combine master sequence killed, cleaning up");
 
-            // Set all cubes to proper end states
+            // set all cubes to proper end states
             for (int i = 0; i < cubeTransforms.Count; i++)
             {
-                // Ensure index is valid for all collections
+                // ensure index is valid for all collections
                 if (i >= renderers.Count || i >= startScales.Count) continue;
 
                 Transform trans = cubeTransforms[i];
@@ -409,7 +410,7 @@ public static class CubeAnimations
                 if (trans != null)
                 {
                     trans.position = targetWorldPos;
-                    // Only access startScales if index is valid
+                    // only access startScales if index is valid
                     if (i < startScales.Count)
                     {
                         trans.localScale = startScales[i] * 0.6f;
@@ -428,7 +429,7 @@ public static class CubeAnimations
                 }
             }
 
-            // Ensure callback is still invoked
+            // ensure callback is still invoked
             onComplete?.Invoke(true);
         });
     }
@@ -469,22 +470,10 @@ public static class CubeAnimations
             return;
         }
 
-        // Check if we have both sprites needed
-        if (defaultSprite == null || rocketSprite == null)
-        {
-            // If sprites aren't assigned, just switch directly
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.sprite = show ? rocketSprite : defaultSprite;
-            }
-            if (IsDebugEnabled()) Debug.Log("[CubeAnimations] Direct sprite switch without animation");
-            return;
-        }
-
-        // Kill any existing tweens on this renderer
+        // kill any existing tweens on this renderer
         DOTween.Kill(spriteRenderer);
 
-        // Get animation settings
+        // get animation settings
         float speedMultiplier = animManager.GetAnimationSpeed();
         float duration = glowDuration / speedMultiplier;
 

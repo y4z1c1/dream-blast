@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
+// obstacle animations are a static class that contains all obstacle specific animations.
 public static class ObstacleAnimations
 {
     private static AnimationManager animManager;
@@ -218,7 +219,6 @@ public static class ObstacleAnimations
         Sequence damageSequence = DOTween.Sequence();
 
         // color flash animation
-        // we need to manually handle the flash effect to get the in-out effect
         float flashValue = 0f;
 
         // use an anonymous tweening value for the flash control
@@ -233,13 +233,13 @@ public static class ObstacleAnimations
             .SetEase(Ease.Linear)
         );
 
-        // Add shake effect instead of scale pulsing
+        // add shake effect
         float shakeIntensity = 0.05f;
         damageSequence.Join(
             DOTween.Sequence()
                 .AppendCallback(() =>
                 {
-                    // Apply shake using DOTween's built-in shake
+                    // apply shake using DOTween's built-in shake
                     obstacle.transform.DOShakePosition(duration / speedMultiplier, shakeIntensity, 20, 90, false, true);
                 })
         );

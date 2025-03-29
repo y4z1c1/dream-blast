@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
+// rocket creator is a simple class that creates rockets in the grid.
 public static class RocketCreator
 {
     // get rocket prefab with error handling

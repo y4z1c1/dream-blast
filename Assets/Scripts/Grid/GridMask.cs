@@ -2,24 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+// grid mask is a class that handles the mask of the grid in order to hide cubes that are outside the grid
 [RequireComponent(typeof(SpriteMask))]
 public class GridMask : MonoBehaviour
 {
-    // Reference to grid background
+    // reference to grid background
     private Transform gridBackgroundTransform;
 
-    // Customizable properties
-    public float topOffset = 0.1f; // Offset from the top edge
+    // offset from the top edge
+    public float topOffset = 0.1f;
 
-    // Scale multiplier for initial state
+    // scale multiplier for initial state
     [SerializeField] private float initialScaleMultiplier = 100f;
 
-    // Scale tracking variables
+    // debug mode toggle
+    [SerializeField] private bool debugMode = false;
+
+    // scale tracking variables
     private bool isInitialLargeScale = true;
     private Vector3 savedNormalScale;
     private bool hasCalculatedNormalScale = false;
 
-    // Components
+    // components
     private SpriteMask spriteMask;
     private SpriteRenderer backgroundRenderer;
 
@@ -28,6 +33,7 @@ public class GridMask : MonoBehaviour
         spriteMask = GetComponent<SpriteMask>();
     }
 
+    // initialize the grid mask 
     public void Initialize(Transform gridBackground)
     {
         gridBackgroundTransform = gridBackground;
@@ -38,14 +44,14 @@ public class GridMask : MonoBehaviour
 
             if (backgroundRenderer != null)
             {
-                // Calculate and save normal scale
+                // calculate and save normal scale
                 CalculateAndSaveNormalScale();
 
-                // Apply large scale
+                // apply large scale
                 isInitialLargeScale = true;
                 ApplyLargeScale();
 
-                // Initially hide the mask if the background is hidden
+                // initially hide the mask if the background is hidden
                 gameObject.SetActive(backgroundRenderer.gameObject.activeSelf);
 
                 Debug.Log("[GridMask] Successfully initialized with grid background (using large initial scale)");
@@ -63,71 +69,71 @@ public class GridMask : MonoBehaviour
 
     private void Update()
     {
-        // Only update if we're still in initial large scale mode
+        // only update if we're still in initial large scale mode
         if (isInitialLargeScale && backgroundRenderer != null && backgroundRenderer.gameObject.activeInHierarchy)
         {
-            // Update position
+            // update position
             UpdateMaskPosition();
 
-            // Calculate and save normal scale if it changes
+            // calculate and save normal scale if it changes
             CalculateAndSaveNormalScale();
 
-            // Re-apply large scale
+            // re-apply large scale
             ApplyLargeScale();
+
+            // debug logging if enabled
+            if (debugMode)
+            {
+                Debug.Log($"[GridMask] Position: {transform.position}, Scale: {transform.localScale}");
+            }
         }
     }
 
-    // Update just the position (always follows background)
+    // update just the position (always follows background)
     private void UpdateMaskPosition()
     {
         if (spriteMask.sprite != null && gridBackgroundTransform != null)
         {
-            // Match the mask's position to the background
+            // match the mask's position to the background
             transform.position = new Vector3(
                 gridBackgroundTransform.position.x,
                 gridBackgroundTransform.position.y + topOffset,
-                gridBackgroundTransform.position.z - 0.01f // Slightly in front
+                gridBackgroundTransform.position.z - 0.01f // slightly in front
             );
 
-            // Match the rotation of the background
+            // match the rotation of the background
             transform.rotation = gridBackgroundTransform.rotation;
+
+            // debug logging if enabled
+            if (debugMode)
+            {
+                Debug.Log($"[GridMask] Updated position to: {transform.position}");
+            }
         }
     }
 
-    // Calculate normal scale and save it
+    // calculate normal scale and save it
     private void CalculateAndSaveNormalScale()
     {
         if (spriteMask.sprite != null && backgroundRenderer != null)
         {
-            // Calculate normal scale
-            if (backgroundRenderer.drawMode == SpriteDrawMode.Sliced ||
-                backgroundRenderer.drawMode == SpriteDrawMode.Tiled)
-            {
-                // For 9-slice backgrounds, use size
-                float width = backgroundRenderer.size.x;
-                float height = backgroundRenderer.size.y;
 
-                savedNormalScale = new Vector3(
-                    width / spriteMask.sprite.bounds.size.x,
-                    height / spriteMask.sprite.bounds.size.y,
-                    1f
-                );
-            }
-            else
-            {
-                // For standard backgrounds, use scale
-                savedNormalScale = new Vector3(
-                    gridBackgroundTransform.localScale.x,
-                    gridBackgroundTransform.localScale.y,
-                    gridBackgroundTransform.localScale.z
-                );
-            }
+            // for 9-slice backgrounds, use size
+            float width = backgroundRenderer.size.x;
+            float height = backgroundRenderer.size.y;
+
+            savedNormalScale = new Vector3(
+                width / spriteMask.sprite.bounds.size.x,
+                height / spriteMask.sprite.bounds.size.y,
+                1f
+            );
+
 
             hasCalculatedNormalScale = true;
         }
     }
 
-    // Apply large scale based on saved normal scale
+    // apply large scale based on saved normal scale
     private void ApplyLargeScale()
     {
         if (hasCalculatedNormalScale)
@@ -146,15 +152,15 @@ public class GridMask : MonoBehaviour
         }
     }
 
-    // Call this when the grid animation completes to return to normal scale
+    // call this when the grid animation completes to return to normal scale
     public void ResetToNormalScale()
     {
         Debug.Log("[GridMask] ResetToNormalScale called");
 
-        // Stop auto-updating in Update
+        // stop auto-updating in update
         isInitialLargeScale = false;
 
-        // Apply normal scale if we have it saved
+        // apply normal scale if we have it saved
         if (hasCalculatedNormalScale)
         {
             transform.localScale = savedNormalScale;
