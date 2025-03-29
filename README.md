@@ -2,11 +2,20 @@
 
 This repository contains my implementation of the Dream Games Software Engineering Study, a level-based mobile puzzle game built in Unity with C#. The game features match-3 mechanics with special rockets, various obstacle types, and 10 unique levels.
 
-<p align="center">
+## Gameplay 
 
-<img width="234" alt="image-12" src="https://github.com/user-attachments/assets/84a86658-911a-45cb-9558-d4db0776db61" />
-<img width="275" alt="image-13" src="https://github.com/user-attachments/assets/409a7154-7885-498e-a1d4-cfd030dff9ac" />
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/7f4bbb59-a917-4d40-9cfb-b1dbc5602469" width="250" />
+  <img src="https://github.com/user-attachments/assets/538c9c9c-9e8e-4721-867d-d138fd5331a0" width="250" />
+  <img src="https://github.com/user-attachments/assets/9a878967-9481-4af3-9f55-72c3734bc7d0" width="250" />
 </p>
+
+[Gameplay Video](https://www.youtube.com/watch?v=U9H3MfrRxQw)
+
+
+
+
 
 ## Development Documentation
 
@@ -41,8 +50,6 @@ You can manually set the current level from the Unity Editor:
 5. Select **Set Debug Level** from the context menu
 6. The level will be set to the specified value
 
-![image-14](https://github.com/user-attachments/assets/dfa0ea7c-55af-4c16-a668-f4b272a33db4)
-
 ### Animation Settings
 
 Animation behavior can be customized through the AnimationManager object:
@@ -55,3 +62,14 @@ Animation behavior can be customized through the AnimationManager object:
    - **Specific Animation Settings**: Duration and intensity for various animations
 
 These settings allow for fine-tuning the visual experience or disabling animations entirely for testing purposes.
+
+### Special Keys to Press
+
+In order to facilitate testing and debugging, the following keyboard shortcuts are available:
+
+- **1-9**: Instantly set the game level to the corresponding number (e.g., pressing '3' will load level 3).
+- **R**: Restart the current level, allowing for quick iteration during testing.
+- **Q**: Return to the main menu, providing a fast way to exit a level without completing it.
+- **P**: Display the win popup screen to simulate level completion.
+- **Return (Enter)**: Restart the current level from the beginning without requiring manual navigation.
+
